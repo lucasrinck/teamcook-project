@@ -1,0 +1,69 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+# Moindre privilège : le workflow ne peut que lire le code
+permissions:
+  contents: read
+
+# Annule le run précédent si un nouveau push arrive sur la même branche
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+# Monorepo npm workspaces : un seul package-lock.json à la racine,
+# les commandes ciblent chaque workspace avec -w.
+# --if-present : les étapes lint/test s'activent dès que le script existe.
+jobs:
+  client:
+    name: client
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Audit dépendances
+        run: npm audit --audit-level=high -w client
+
+      - name: Lint
+        run: npm run lint -w client --if-present
+
+      - name: Tests
+        run: npm test -w client --if-present
+
+      - name: Build
+        run: npm run build -w client
+
+  server:
+    name: server
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Audit dépendances
+        run: npm audit --audit-level=high -w server
+
+      - name: Lint
+        run: npm run lint -w server --if-present
+
+      - name: Tests
+        run: npm test -w server --if-present
