@@ -3,7 +3,8 @@
 const HERO_IMAGE =
   'https://images.unsplash.com/photo-1500313830540-7b6650a74fd0?auto=format&fit=crop&w=2400&q=80';
 
-export function Hero() {
+// onExploreMap : affiche la carte (utile sur mobile, où liste et carte sont séparées)
+export function Hero({ onExploreMap }: { onExploreMap: () => void }) {
   return (
     <section className="relative isolate flex min-h-[100svh] items-end overflow-hidden">
       <img src={HERO_IMAGE} alt="" className="hero-image absolute inset-0 -z-20 h-full w-full object-cover object-[72%_50%] sm:object-center" />
@@ -18,7 +19,7 @@ export function Hero() {
           Des lieux secrets. Des nuits inattendues. Ta prochaine histoire commence ici.
         </p>
         <div className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-4">
-          <a href="#explorer" className="btn btn-primary">
+          <a href="#explorer" onClick={onExploreMap} className="btn btn-primary">
             Explorer la carte
           </a>
           <p className="text-ash">Your city. Your night. Your story.</p>

@@ -182,6 +182,143 @@
   }
 }
 
+/* ---------- Carte (Leaflet) ---------- */
+
+/* Bouton Liste / Carte (mobile) */
+.view-toggle {
+  @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-full text-sm font-semibold text-ash transition aria-pressed:bg-acid aria-pressed:text-charcoal;
+}
+
+.map-frame .leaflet-container {
+  background: #0b0d0c; /* couleur visible pendant le chargement des tuiles */
+  font-family: var(--font-sans);
+}
+
+/* Teinte cyberpunk du fond de carte : le gris de Dark Matter devient violet.
+   sepia() colore les gris, hue-rotate() tourne cette couleur vers le violet,
+   brightness() éclaircit les rues pour qu'elles restent lisibles. */
+.map-tiles-base {
+  filter: sepia(1) hue-rotate(215deg) saturate(2.4) brightness(1.25) contrast(1.05);
+}
+
+/* Les noms de rues restent neutres et sont éclaircis pour la lisibilité */
+.map-tiles-labels {
+  filter: brightness(1.35);
+}
+
+/* Vignettage : bords assombris, effet "écran de nuit" */
+.map-frame::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 450; /* au-dessus des tuiles, sous les marqueurs (600) */
+  pointer-events: none;
+  border-radius: inherit;
+  box-shadow: inset 0 0 90px 10px rgba(5, 7, 6, 0.7);
+}
+
+/* Marqueurs personnalisés (divIcon) */
+.spot-marker-wrapper {
+  background: none;
+  border: 0;
+}
+.spot-marker {
+  --marker-color: #d4ff70; /* remplacée par la couleur de la catégorie */
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  margin: 2px;
+  border-radius: 9999px;
+  border: 2px solid var(--marker-color);
+  background: #101311;
+  color: var(--marker-color);
+  box-shadow: 0 0 18px -2px var(--marker-color);
+  transition:
+    transform 0.25s ease,
+    background-color 0.25s ease,
+    color 0.25s ease;
+}
+.spot-marker svg {
+  width: 18px;
+  height: 18px;
+}
+/* Halo qui pulse doucement autour du marqueur */
+.spot-marker::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  border: 2px solid var(--marker-color);
+  animation: marker-pulse 2.6s ease-out infinite;
+}
+.leaflet-marker-icon:hover .spot-marker {
+  transform: scale(1.12);
+}
+.spot-marker.is-selected {
+  transform: scale(1.3);
+  background: var(--marker-color);
+  color: #101311;
+}
+/* Lieu indisponible : grisé et sans halo */
+.spot-marker.is-unavailable {
+  filter: grayscale(1);
+  opacity: 0.6;
+  box-shadow: none;
+}
+.spot-marker.is-unavailable::before {
+  display: none;
+}
+/* Focus clavier visible sur les marqueurs (Tab puis Entrée pour sélectionner) */
+.leaflet-marker-icon:focus-visible {
+  outline: none;
+}
+.leaflet-marker-icon:focus-visible .spot-marker {
+  outline: 2px solid var(--color-mist);
+  outline-offset: 4px;
+}
+
+/* Commandes et attribution de Leaflet aux couleurs d'AFTERDARK */
+.map-frame .leaflet-bar {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 1rem;
+  overflow: hidden;
+  box-shadow: none;
+}
+.map-frame .leaflet-bar a {
+  width: 44px;
+  height: 44px;
+  line-height: 44px;
+  background: rgba(16, 19, 17, 0.9);
+  color: var(--color-mist);
+  border-bottom-color: rgba(255, 255, 255, 0.12);
+}
+.map-frame .leaflet-bar a:hover {
+  background: var(--color-forest);
+  color: var(--color-acid);
+}
+.map-frame .leaflet-control-attribution {
+  background: rgba(16, 19, 17, 0.8);
+  color: var(--color-ash);
+  border-top-left-radius: 0.75rem;
+  padding: 2px 8px;
+}
+.map-frame .leaflet-control-attribution a {
+  color: var(--color-mist);
+}
+
+@keyframes marker-pulse {
+  from {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+  to {
+    transform: scale(2.1);
+    opacity: 0;
+  }
+}
+
 /* Respect de prefers-reduced-motion : on coupe les animations CSS décoratives. */
 @media (prefers-reduced-motion: reduce) {
   html {
