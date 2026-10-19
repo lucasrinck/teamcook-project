@@ -2,7 +2,7 @@
 // Les positions viennent de la table spot_infos (infos.latitude / infos.longitude).
 import { useEffect, useMemo } from 'react';
 import L from 'leaflet';
-import { MapContainer, Marker, TileLayer, useMap } from 'react-leaflet';
+import { MapContainer, Marker, Polyline, TileLayer, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import type { Spot } from '../types/spot';
 import { iconSvg } from './Icon';
@@ -40,14 +40,17 @@ function safeColor(color: string | null) {
 
 // Marqueur personnalisé (divIcon = du HTML stylé en CSS, voir .spot-marker dans index.css).
 // Il contient l'icône de la catégorie : l'information ne repose pas que sur la couleur.
-function createMarkerIcon(spot: Spot, selected: boolean) {
+// routeStep : numéro affiché sur le marqueur si le lieu fait partie de la Night Route
+function createMarkerIcon(spot: Spot, selected: boolean, routeStep: number | null) {
   const classes = ['spot-marker'];
   if (selected) classes.push('is-selected');
   if (!spot.available) classes.push('is-unavailable');
 
   return L.divIcon({
     className: 'spot-marker-wrapper',
-    html: `<span class="${classes.join(' ')}" style="--marker-color: ${safeColor(spot.category.color)}">${iconSvg(spot.category.icon ?? 'map-pin')}</span>`,
+    html: `<span class="${classes.join(' ')}" style="--marker-color: ${safeColor(spot.category.color)}">${iconSvg(spot.category.icon ?? 'map-pin')}${
+      routeStep !== null ? `<span class="spot-marker-step">${routeStep}</span>` : ''
+    }</span>`,
     iconSize: [40, 40],
     iconAnchor: [20, 20],
   });
@@ -56,15 +59,16 @@ function createMarkerIcon(spot: Spot, selected: boolean) {
 type SpotMarkerProps = {
   point: MapPoint;
   selected: boolean;
+  routeStep: number | null;
   onSelect: (id: number) => void;
 };
 
-function SpotMarker({ point, selected, onSelect }: SpotMarkerProps) {
+function SpotMarker({ point, selected, routeStep, onSelect }: SpotMarkerProps) {
   const { spot } = point;
   // L'icône n'est recréée que si son apparence change
   const icon = useMemo(
-    () => createMarkerIcon(spot, selected),
-    [spot.category.icon, spot.category.color, spot.available, selected],
+    () => createMarkerIcon(spot, selected, routeStep),
+    [spot.category.icon, spot.category.color, spot.available, selected, routeStep],
   );
 
   return (
@@ -135,9 +139,10 @@ type SpotMapProps = {
   spots: Spot[]; // les lieux filtrés (les mêmes que la liste)
   selectedId: number | null;
   onSelect: (id: number) => void;
+  routeStops: Spot[]; // étapes de la Night Route, dans l'ordre
 };
 
-export function SpotMap({ spots, selectedId, onSelect }: SpotMapProps) {
+export function SpotMap({ spots, selectedId, onSelect, routeStops }: SpotMapProps) {
   // Seuls les lieux qui ont une fiche spot_infos peuvent être placés sur la carte
   const points = useMemo(() => {
     const result: MapPoint[] = [];
@@ -149,15 +154,44 @@ export function SpotMap({ spots, selectedId, onSelect }: SpotMapProps) {
 
   const selectedPoint = points.find((point) => point.spot.id === selectedId) ?? null;
 
+  // Night Route : position de chaque étape (ligne droite entre elles, à vol d'oiseau)
+  const routeIds = routeStops.map((stop) => stop.id);
+  const routePositions: [number, number][] = [];
+  for (const stop of routeStops) {
+    if (stop.infos) routePositions.push([stop.infos.latitude, stop.infos.longitude]);
+  }
+
   return (
     <div className="map-frame relative isolate h-full overflow-hidden rounded-[2rem] border border-white/10">
       <MapContainer center={PARIS} zoom={13} className="h-full w-full" zoomControl={false}>
-        <TileLayer url={BASE_TILES} attribution={ATTRIBUTION} className="map-tiles-base" subdomains="abcd" maxZoom={20} />
+        <TileLayer
+          url={BASE_TILES}
+          attribution={ATTRIBUTION}
+          className="map-tiles-base"
+          subdomains="abcd"
+          maxZoom={20}
+        />
         <TileLayer url={LABEL_TILES} className="map-tiles-labels" subdomains="abcd" maxZoom={20} zIndex={2} />
 
-        {points.map((point) => (
-          <SpotMarker key={point.spot.id} point={point} selected={point.spot.id === selectedId} onSelect={onSelect} />
-        ))}
+        {routePositions.length >= 2 && (
+          <Polyline
+            positions={routePositions}
+            pathOptions={{ className: 'route-line', color: '#D4FF70', weight: 3, dashArray: '2 10' }}
+          />
+        )}
+
+        {points.map((point) => {
+          const stepIndex = routeIds.indexOf(point.spot.id);
+          return (
+            <SpotMarker
+              key={point.spot.id}
+              point={point}
+              selected={point.spot.id === selectedId}
+              routeStep={stepIndex === -1 ? null : stepIndex + 1}
+              onSelect={onSelect}
+            />
+          );
+        })}
 
         <FitToPoints points={points} />
         <FlyToSelected point={selectedPoint} />

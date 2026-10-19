@@ -52,4 +52,5 @@ export type SpotFilters = {
   categoryId: number | null;
   city: string;
   onlyAvailable: boolean;
+  onlyFavorites: boolean;
 };

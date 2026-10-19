@@ -6,6 +6,7 @@ export const EMPTY_FILTERS: SpotFilters = {
   categoryId: null,
   city: '',
   onlyAvailable: false,
+  onlyFavorites: false,
 };
 
 // Met en minuscules et retire les accents : "Café" et "cafe" se trouvent pareil
@@ -13,12 +14,13 @@ export function normalizeText(text: string) {
   return text
     .toLowerCase()
     .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '');
+    .replace(/[\u0300-\u036f]/g, ''); // supprime les accents séparés par normalize('NFD')
 }
 
 // FILTRAGE CÔTÉ CLIENT : on garde seulement les lieux qui respectent tous les filtres.
 // La liste et la carte utilisent le même résultat.
-export function filterSpots(spots: Spot[], filters: SpotFilters): Spot[] {
+// favoriteIds : les lieux mis en favoris (pour le filtre "Mes favoris")
+export function filterSpots(spots: Spot[], filters: SpotFilters, favoriteIds: number[]): Spot[] {
   const search = normalizeText(filters.search.trim());
 
   return spots.filter((spot) => {
@@ -26,6 +28,7 @@ export function filterSpots(spots: Spot[], filters: SpotFilters): Spot[] {
     if (filters.categoryId !== null && spot.category.id !== filters.categoryId) return false;
     if (filters.city && spot.infos?.city !== filters.city) return false;
     if (filters.onlyAvailable && !spot.available) return false;
+    if (filters.onlyFavorites && !favoriteIds.includes(spot.id)) return false;
     return true;
   });
 }
@@ -37,6 +40,7 @@ export function countActiveFilters(filters: SpotFilters) {
   if (filters.categoryId !== null) count++;
   if (filters.city) count++;
   if (filters.onlyAvailable) count++;
+  if (filters.onlyFavorites) count++;
   return count;
 }
 

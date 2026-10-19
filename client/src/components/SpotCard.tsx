@@ -3,15 +3,28 @@ import type { Spot } from '../types/spot';
 import { formatLocation, readDescription } from '../utils/spots';
 import { AvailabilityBadge, CategoryBadge, DemoTag } from './Badges';
 import { Icon } from './Icon';
+import { FavoriteButton, RouteButton } from './SpotActions';
 import { SpotImage } from './SpotImage';
 
 type SpotCardProps = {
   spot: Spot;
   selected: boolean;
   onExplore: (spot: Spot) => void;
+  isFavorite: boolean;
+  onToggleFavorite: (id: number) => void;
+  routeStep: number | null; // numéro d'étape dans la Night Route (null si absent)
+  onToggleRoute: (id: number) => void;
 };
 
-export function SpotCard({ spot, selected, onExplore }: SpotCardProps) {
+export function SpotCard({
+  spot,
+  selected,
+  onExplore,
+  isFavorite,
+  onToggleFavorite,
+  routeStep,
+  onToggleRoute,
+}: SpotCardProps) {
   const { isDemo, text } = readDescription(spot.description);
   const location = formatLocation(spot);
 
@@ -32,11 +45,19 @@ export function SpotCard({ spot, selected, onExplore }: SpotCardProps) {
         <div className="absolute top-3 left-3">
           <AvailabilityBadge available={spot.available} />
         </div>
+        <div className="absolute top-2 right-2">
+          <FavoriteButton spotName={spot.name} active={isFavorite} onToggle={() => onToggleFavorite(spot.id)} />
+        </div>
       </div>
 
       <div className="flex flex-1 flex-col gap-2 p-5">
-        <CategoryBadge category={spot.category} />
-        <h3 className={`font-display text-[1.75rem] leading-none font-bold ${spot.available ? 'text-mist' : 'text-mist/60'}`}>
+        <div className="flex flex-wrap items-center gap-2">
+          <CategoryBadge category={spot.category} />
+          {isDemo && <DemoTag />}
+        </div>
+        <h3
+          className={`font-display text-[1.75rem] leading-none font-bold ${spot.available ? 'text-mist' : 'text-mist/60'}`}
+        >
           {spot.name}
         </h3>
         {text && <p className="line-clamp-2 text-sm leading-relaxed text-ash">{text}</p>}
@@ -47,8 +68,13 @@ export function SpotCard({ spot, selected, onExplore }: SpotCardProps) {
           </p>
         )}
 
-        <div className="mt-auto flex items-center justify-between gap-3 pt-3">
-          {isDemo ? <DemoTag /> : <span />}
+        <div className="mt-auto flex items-center justify-end gap-2 pt-3">
+          <RouteButton
+            spotName={spot.name}
+            step={routeStep}
+            canBeAdded={spot.infos !== null}
+            onToggle={() => onToggleRoute(spot.id)}
+          />
           <button type="button" onClick={() => onExplore(spot)} className="btn btn-secondary">
             Explorer
             <span className="sr-only"> {spot.name}</span>

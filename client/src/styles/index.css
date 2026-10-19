@@ -267,6 +267,31 @@
   background: var(--marker-color);
   color: #101311;
 }
+/* Numéro d'étape de la Night Route, en haut à droite du marqueur */
+.spot-marker-step {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  display: grid;
+  place-items: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 4px;
+  border-radius: 9999px;
+  background: var(--color-volt);
+  color: #101311;
+  font: 700 11px/1 var(--font-sans);
+}
+.spot-marker.is-selected .spot-marker-step {
+  background: #101311;
+  color: var(--color-mist);
+}
+
+/* Ligne de la Night Route : pointillés lumineux */
+.route-line {
+  filter: drop-shadow(0 0 6px rgba(212, 255, 112, 0.8));
+}
+
 /* Lieu indisponible : grisé et sans halo */
 .spot-marker.is-unavailable {
   filter: grayscale(1);

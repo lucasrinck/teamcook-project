@@ -11,9 +11,10 @@ type FiltersBarProps = {
   onChange: (filters: SpotFilters) => void;
   categories: Category[];
   cities: string[];
+  favoritesCount: number;
 };
 
-export function FiltersBar({ filters, onChange, categories, cities }: FiltersBarProps) {
+export function FiltersBar({ filters, onChange, categories, cities, favoritesCount }: FiltersBarProps) {
   const [mobileOpen, setMobileOpen] = useState(false); // panneau des filtres en mobile
   const activeCount = countActiveFilters(filters);
 
@@ -27,7 +28,10 @@ export function FiltersBar({ filters, onChange, categories, cities }: FiltersBar
       <div className="flex gap-3">
         <label className="relative flex-1">
           <span className="sr-only">Rechercher un lieu par son nom</span>
-          <Icon name="search" className="pointer-events-none absolute top-1/2 left-4 size-5 -translate-y-1/2 text-ash" />
+          <Icon
+            name="search"
+            className="pointer-events-none absolute top-1/2 left-4 size-5 -translate-y-1/2 text-ash"
+          />
           <input
             type="search"
             value={filters.search}
@@ -50,7 +54,11 @@ export function FiltersBar({ filters, onChange, categories, cities }: FiltersBar
 
       <div id="filters-panel" className={`${mobileOpen ? 'flex' : 'hidden'} flex-col gap-4 lg:flex`}>
         {/* Catégories : boutons "puces", un seul choix à la fois */}
-        <div role="group" aria-label="Filtrer par catégorie" className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 lg:mx-0 lg:flex-wrap lg:px-0">
+        <div
+          role="group"
+          aria-label="Filtrer par catégorie"
+          className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 lg:mx-0 lg:flex-wrap lg:px-0"
+        >
           <button
             type="button"
             aria-pressed={filters.categoryId === null}
@@ -100,6 +108,16 @@ export function FiltersBar({ filters, onChange, categories, cities }: FiltersBar
               className="switch"
             />
             Lieux disponibles uniquement
+          </label>
+
+          <label className="flex min-h-11 cursor-pointer items-center gap-3 text-sm text-mist">
+            <input
+              type="checkbox"
+              checked={filters.onlyFavorites}
+              onChange={(event) => update({ onlyFavorites: event.target.checked })}
+              className="switch"
+            />
+            Mes favoris ({favoritesCount})
           </label>
 
           <button

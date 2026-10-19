@@ -7,14 +7,19 @@ import { readDescription } from '../utils/spots';
 import { AvailabilityBadge, CategoryBadge, DemoTag } from './Badges';
 import { Icon } from './Icon';
 import { EASE_OUT } from './Motion';
+import { FavoriteButton, RouteButton } from './SpotActions';
 import { SpotImage } from './SpotImage';
 
 type SpotDetailProps = {
   spot: Spot;
   onClose: () => void;
+  isFavorite: boolean;
+  onToggleFavorite: (id: number) => void;
+  routeStep: number | null;
+  onToggleRoute: (id: number) => void;
 };
 
-export function SpotDetail({ spot, onClose }: SpotDetailProps) {
+export function SpotDetail({ spot, onClose, isFavorite, onToggleFavorite, routeStep, onToggleRoute }: SpotDetailProps) {
   const [imageIndex, setImageIndex] = useState(0);
   const titleRef = useRef<HTMLHeadingElement>(null);
   const { isDemo, text } = readDescription(spot.description);
@@ -121,6 +126,16 @@ export function SpotDetail({ spot, onClose }: SpotDetailProps) {
         </h2>
 
         {text && <p className="leading-relaxed text-mist/80">{text}</p>}
+
+        <div className="flex flex-wrap items-center gap-2">
+          <FavoriteButton spotName={spot.name} active={isFavorite} onToggle={() => onToggleFavorite(spot.id)} />
+          <RouteButton
+            spotName={spot.name}
+            step={routeStep}
+            canBeAdded={spot.infos !== null}
+            onToggle={() => onToggleRoute(spot.id)}
+          />
+        </div>
 
         <div className="flex items-start gap-3 rounded-2xl border border-white/8 bg-forest/50 p-4">
           <Icon name="map-pin" className="mt-0.5 size-5 shrink-0 text-acid" />
