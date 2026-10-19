@@ -1,4 +1,4 @@
-// Format d'un lieu renvoyé par l'API (le même pour toutes les routes).
+// Format d'un lieu renvoyé par l'API.
 
 export type Category = {
   id: number;
@@ -22,8 +22,7 @@ export type Spot = {
   images: string[];
   available: boolean;
   category: Category;
-  // null si le lieu n'a pas de fiche spot_infos : il n'apparaît pas sur la carte
-  infos: SpotInfos | null;
+  infos: SpotInfos | null; // null si le lieu n'a pas de fiche spot_infos
 };
 
 // Une erreur de validation, rattachée au champ concerné

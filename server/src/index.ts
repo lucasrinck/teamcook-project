@@ -1,4 +1,4 @@
-// Point d'entrée du serveur : valide le .env puis démarre Express.
+// Point d'entrée : démarre le serveur Express.
 import { env } from './config/env.js';
 import app from './app.js';
 

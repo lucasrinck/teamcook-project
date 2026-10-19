@@ -86,9 +86,11 @@ export default function ExplorerPage() {
           )}
 
           {status === 'ready' && visibleSpots.length > 0 && (
-            <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            // Liste en cartes avec flex : les cartes passent à la ligne (flex-wrap)
+            // 1 par ligne sur mobile, 2 sur tablette, 3 sur ordinateur
+            <ul className="flex flex-wrap gap-6">
               {visibleSpots.map((spot) => (
-                <li key={spot.id} className="flex">
+                <li key={spot.id} className="flex w-full sm:w-[calc((100%-1.5rem)/2)] lg:w-[calc((100%-3rem)/3)]">
                   <SpotCard spot={spot} selected={spot.id === selectedId} onExplore={(s) => setSelectedId(s.id)} />
                 </li>
               ))}

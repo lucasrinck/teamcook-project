@@ -1,26 +1,20 @@
-// Chargement et validation des variables d'environnement.
-// Si une variable manque ou est invalide, le serveur refuse de démarrer :
-// on préfère une erreur claire au lancement plutôt qu'un bug plus tard.
+// Charge le fichier .env et vérifie qu'aucune variable ne manque.
+// S'il en manque une, le serveur s'arrête tout de suite avec un message clair.
 import 'dotenv/config';
-import { z } from 'zod';
 
-const envSchema = z.object({
-  PORT: z.coerce.number().int().positive().default(3000),
-  SUPABASE_URL: z.url('SUPABASE_URL doit être une URL (https://xxxx.supabase.co)'),
-  SUPABASE_SECRET_KEY: z.string('SUPABASE_SECRET_KEY est obligatoire').min(1, 'SUPABASE_SECRET_KEY est obligatoire'),
-  CLIENT_URL: z.url('CLIENT_URL doit être une URL (ex. http://localhost:5173)'),
-  ADMIN_TOKEN: z.string('ADMIN_TOKEN est obligatoire').min(16, 'ADMIN_TOKEN doit contenir au moins 16 caractères'),
-});
+const REQUIRED = ['SUPABASE_URL', 'SUPABASE_SECRET_KEY', 'CLIENT_URL', 'ADMIN_TOKEN'];
 
-const result = envSchema.safeParse(process.env);
-
-if (!result.success) {
-  // On affiche le nom de la variable et le problème, jamais sa valeur.
-  console.error('Configuration invalide dans server/.env :');
-  for (const issue of result.error.issues) {
-    console.error(`  - ${issue.path.join('.')} : ${issue.message}`);
+for (const name of REQUIRED) {
+  if (!process.env[name]) {
+    console.error(`Variable manquante dans server/.env : ${name}`);
+    process.exit(1);
   }
-  process.exit(1);
 }
 
-export const env = result.data;
+export const env = {
+  PORT: Number(process.env.PORT) || 3000,
+  SUPABASE_URL: process.env.SUPABASE_URL as string,
+  SUPABASE_SECRET_KEY: process.env.SUPABASE_SECRET_KEY as string,
+  CLIENT_URL: process.env.CLIENT_URL as string,
+  ADMIN_TOKEN: process.env.ADMIN_TOKEN as string,
+};

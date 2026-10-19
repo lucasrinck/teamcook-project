@@ -1,27 +1,16 @@
-// Routes des lieux (préfixe /api/spots, voir routes/index.ts).
-// requireAdmin est placé AVANT le contrôleur : sans token valide,
-// la requête est refusée (401) avant même de lire les données.
+// Routes des lieux (préfixe /api/spots).
+// requireAdmin est placé AVANT la fonction de la route : sans token valide,
+// la requête est refusée (401) et la base n'est jamais touchée.
 import { Router } from 'express';
 import { requireAdmin } from '../middleware/requireAdmin.js';
-import {
-  getSpots,
-  getSpot,
-  createSpot,
-  updateSpot,
-  updateAvailability,
-  deleteSpot,
-} from '../controllers/spots.controller.js';
+import { getSpots, createSpot, updateSpot, updateAvailability, deleteSpot } from '../controllers/spots.controller.js';
 
 const router = Router();
 
-// Les quatre routes CRUD principales
-router.get('/', getSpots); //                       READ   (public)
-router.post('/', requireAdmin, createSpot); //      CREATE (admin)
-router.put('/:id', requireAdmin, updateSpot); //    UPDATE (admin)
-router.delete('/:id', requireAdmin, deleteSpot); // DELETE (admin)
-
-// Routes complémentaires
-router.get('/:id', getSpot); //                                         READ un lieu (public)
-router.patch('/:id/availability', requireAdmin, updateAvailability); // disponibilité (admin)
+router.get('/', getSpots); //                                           lister    (200)
+router.post('/', requireAdmin, createSpot); //                          ajouter   (201 / 400)
+router.put('/:id', requireAdmin, updateSpot); //                        modifier  (200 / 404)
+router.delete('/:id', requireAdmin, deleteSpot); //                     supprimer (204)
+router.patch('/:id/availability', requireAdmin, updateAvailability); // bouton dispo / pas dispo
 
 export default router;

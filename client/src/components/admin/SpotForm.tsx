@@ -28,7 +28,7 @@ function toFormValues(spot: Spot | null): FormValues {
     name: spot?.name ?? '',
     category_id: spot ? String(spot.category.id) : '',
     description: spot?.description ?? '',
-    images: spot && spot.images.length > 0 ? [...spot.images] : [''],
+    images: spot ? [...spot.images] : [],
     available: spot?.available ?? true,
     address: spot?.infos?.address ?? '',
     city: spot?.infos?.city ?? 'Paris',
@@ -48,7 +48,7 @@ function toSpotInput(values: FormValues): SpotInput {
     name: values.name,
     category_id: toNumber(values.category_id),
     description: values.description,
-    images: values.images.map((url) => url.trim()).filter((url) => url !== ''),
+    images: values.images.map((url) => url.trim()),
     available: values.available,
     address: values.address,
     city: values.city,
@@ -108,17 +108,6 @@ export function SpotForm({ spot, categories, onSubmit, onCancel }: SpotFormProps
     }
   }
 
-  // Les erreurs d'images arrivent avec un index ("images.2") : il faut retrouver
-  // l'index d'origine, car les champs vides sont retirés avant l'envoi.
-  const filledImageIndexes = values.images
-    .map((url, index) => (url.trim() === '' ? -1 : index))
-    .filter((index) => index !== -1);
-
-  function imageError(index: number) {
-    const sentIndex = filledImageIndexes.indexOf(index);
-    return sentIndex === -1 ? undefined : errors[`images.${sentIndex}`];
-  }
-
   const errorCount = Object.keys(errors).length;
 
   return (
@@ -162,9 +151,12 @@ export function SpotForm({ spot, categories, onSubmit, onCancel }: SpotFormProps
       {/* Images : liste dynamique de champs URL (6 maximum) avec aperçu */}
       <fieldset className="flex flex-col gap-3">
         <legend className="field-label mb-2">Images</legend>
-        <p className="-mt-1 text-sm text-ash">La première image sert de couverture. {MAX_IMAGES} images maximum.</p>
+        <p className="-mt-1 text-sm text-ash">
+          La première image sert de couverture. {MAX_IMAGES} images maximum.
+          {values.images.length === 0 && ' Aucune image pour le moment.'}
+        </p>
         {values.images.map((url, index) => {
-          const error = imageError(index);
+          const error = errors[`images.${index}`]; // ex. "images.2" pour la 3e image
           return (
             <div key={index} className="flex flex-col gap-1.5">
               <div className="flex items-center gap-3">

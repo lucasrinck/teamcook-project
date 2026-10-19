@@ -30,7 +30,6 @@ npm run dev                           # client sur :5173, API sur :3000
 | --------------- | ----------------------------------------------- |
 | `npm run dev`   | lance le client et le serveur en parallèle      |
 | `npm run build` | compile le serveur (`server/dist`) et le client (`client/dist`) |
-| `npm test`      | lance les tests de l'API (Vitest + Supertest)   |
 
 ## Protection de la branche `main`
 
