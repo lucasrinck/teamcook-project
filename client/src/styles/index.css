@@ -196,14 +196,14 @@
 
 /* Teinte cyberpunk du fond de carte : le gris de Dark Matter devient violet.
    sepia() colore les gris, hue-rotate() tourne cette couleur vers le violet,
-   brightness() éclaircit les rues pour qu'elles restent lisibles. */
+   brightness() assombrit le fond pour que les noms et les marqueurs ressortent. */
 .map-tiles-base {
-  filter: sepia(1) hue-rotate(215deg) saturate(2.4) brightness(1.25) contrast(1.05);
+  filter: sepia(1) hue-rotate(215deg) saturate(1.5) brightness(0.8) contrast(1.15);
 }
 
-/* Les noms de rues restent neutres et sont éclaircis pour la lisibilité */
+/* Les noms de rues restent neutres et sont nettement éclaircis : ce sont eux qu'on doit lire en premier */
 .map-tiles-labels {
-  filter: brightness(1.35);
+  filter: brightness(1.8);
 }
 
 /* Vignettage : bords assombris, effet "écran de nuit" */
