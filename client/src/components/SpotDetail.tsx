@@ -1,10 +1,12 @@
 // Fiche détaillée d'un lieu : galerie, catégorie, description, adresse.
 // Panneau latéral sur ordinateur, panneau inférieur sur mobile.
 import { useEffect, useRef, useState } from 'react';
+import { motion } from 'framer-motion';
 import type { Spot } from '../types/spot';
 import { readDescription } from '../utils/spots';
 import { AvailabilityBadge, CategoryBadge, DemoTag } from './Badges';
 import { Icon } from './Icon';
+import { EASE_OUT } from './Motion';
 import { SpotImage } from './SpotImage';
 
 type SpotDetailProps = {
@@ -34,14 +36,22 @@ export function SpotDetail({ spot, onClose }: SpotDetailProps) {
     return () => window.removeEventListener('keydown', handleKey);
   }, [onClose]);
 
+  // Sur ordinateur le panneau glisse depuis la droite, sur mobile depuis le bas
+  const isDesktop = window.matchMedia('(min-width: 1024px)').matches;
+  const hiddenPosition = isDesktop ? { x: 48, opacity: 0 } : { y: '100%' };
+
   function showImage(step: number) {
     setImageIndex((imageIndex + step + imageCount) % imageCount);
   }
 
   return (
-    <aside
+    <motion.aside
       aria-labelledby="spot-detail-title"
-      className="panel-enter fixed inset-x-0 bottom-0 z-40 max-h-[85svh] overflow-y-auto rounded-t-[2rem] border-t border-white/10 bg-charcoal shadow-[0_-30px_80px_-20px_rgba(0,0,0,0.8)] lg:inset-x-auto lg:top-4 lg:right-4 lg:bottom-4 lg:max-h-none lg:w-[28rem] lg:rounded-[2rem] lg:border"
+      initial={hiddenPosition}
+      animate={{ x: 0, y: 0, opacity: 1 }}
+      exit={hiddenPosition}
+      transition={{ duration: 0.45, ease: EASE_OUT }}
+      className="fixed inset-x-0 bottom-0 z-40 max-h-[85svh] overflow-y-auto rounded-t-[2rem] border-t border-white/10 bg-charcoal shadow-[0_-30px_80px_-20px_rgba(0,0,0,0.8)] lg:inset-x-auto lg:top-4 lg:right-4 lg:bottom-4 lg:max-h-none lg:w-[28rem] lg:rounded-[2rem] lg:border"
     >
       {/* Poignée visuelle du panneau mobile */}
       <div className="mx-auto mt-3 h-1 w-10 rounded-full bg-white/20 lg:hidden" aria-hidden="true" />
@@ -101,7 +111,12 @@ export function SpotDetail({ spot, onClose }: SpotDetailProps) {
           {isDemo && <DemoTag />}
         </div>
 
-        <h2 id="spot-detail-title" ref={titleRef} tabIndex={-1} className="font-display text-5xl leading-[0.9] font-extrabold text-mist outline-none">
+        <h2
+          id="spot-detail-title"
+          ref={titleRef}
+          tabIndex={-1}
+          className="font-display text-5xl leading-[0.9] font-extrabold text-mist outline-none"
+        >
           {spot.name}
         </h2>
 
@@ -126,6 +141,6 @@ export function SpotDetail({ spot, onClose }: SpotDetailProps) {
           </p>
         )}
       </div>
-    </aside>
+    </motion.aside>
   );
 }

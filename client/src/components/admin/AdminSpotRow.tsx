@@ -1,4 +1,5 @@
 // Une ligne de la liste des lieux dans la Control Room, avec ses actions.
+import { motion } from 'framer-motion';
 import type { Spot } from '../../types/spot';
 import { formatLocation } from '../../utils/spots';
 import { AvailabilityBadge, CategoryBadge } from '../Badges';
@@ -15,7 +16,15 @@ type AdminSpotRowProps = {
 
 export function AdminSpotRow({ spot, busy, onToggleAvailability, onEdit, onDelete }: AdminSpotRowProps) {
   return (
-    <li className="flex flex-col gap-4 rounded-3xl border border-white/8 bg-forest/40 p-4 md:flex-row md:items-center">
+    // layout + exit : la ligne disparaît en douceur après une suppression, les autres remontent
+    <motion.li
+      layout
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, x: -24 }}
+      transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+      className="flex flex-col gap-4 rounded-3xl border border-white/8 bg-forest/40 p-4 md:flex-row md:items-center"
+    >
       <div className="flex min-w-0 flex-1 items-center gap-4">
         <SpotImage
           src={spot.images[0]}
@@ -49,6 +58,6 @@ export function AdminSpotRow({ spot, busy, onToggleAvailability, onEdit, onDelet
           <span className="sr-only"> {spot.name}</span>
         </button>
       </div>
-    </li>
+    </motion.li>
   );
 }

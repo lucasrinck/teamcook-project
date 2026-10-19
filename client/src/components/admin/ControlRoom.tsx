@@ -1,6 +1,7 @@
 // Control Room : la page qui démontre le CRUD complet.
 // Chaque action appelle l'API Express, puis recharge les données depuis l'API.
 import { useState } from 'react';
+import { AnimatePresence } from 'framer-motion';
 import { ApiError, createSpot, deleteSpot, setSpotAvailability, updateSpot } from '../../services/api';
 import { useSpots } from '../../hooks/useSpots';
 import { useToast } from '../../hooks/useToast';
@@ -160,16 +161,18 @@ export function ControlRoom({ token, onLogout }: ControlRoomProps) {
 
       {status === 'ready' && spots.length > 0 && (
         <ul className="flex flex-col gap-3" aria-label="Lieux enregistrés">
-          {spots.map((spot) => (
-            <AdminSpotRow
-              key={spot.id}
-              spot={spot}
-              busy={busyId === spot.id}
-              onToggleAvailability={handleToggleAvailability}
-              onEdit={openEditForm}
-              onDelete={setSpotToDelete}
-            />
-          ))}
+          <AnimatePresence initial={false}>
+            {spots.map((spot) => (
+              <AdminSpotRow
+                key={spot.id}
+                spot={spot}
+                busy={busyId === spot.id}
+                onToggleAvailability={handleToggleAvailability}
+                onEdit={openEditForm}
+                onDelete={setSpotToDelete}
+              />
+            ))}
+          </AnimatePresence>
         </ul>
       )}
 
@@ -179,7 +182,12 @@ export function ControlRoom({ token, onLogout }: ControlRoomProps) {
           <h2 id="form-title" className="font-display text-4xl leading-none font-extrabold text-mist">
             {editingSpot ? 'Modifier le lieu' : 'Nouveau lieu'}
           </h2>
-          <button type="button" onClick={() => setFormOpen(false)} className="btn btn-ghost px-3" aria-label="Fermer le formulaire">
+          <button
+            type="button"
+            onClick={() => setFormOpen(false)}
+            className="btn btn-ghost px-3"
+            aria-label="Fermer le formulaire"
+          >
             <Icon name="x" />
           </button>
         </div>
@@ -195,7 +203,12 @@ export function ControlRoom({ token, onLogout }: ControlRoomProps) {
       </Dialog>
 
       {/* Confirmation de suppression */}
-      <Dialog open={spotToDelete !== null} onClose={() => setSpotToDelete(null)} labelledBy="delete-title" className="dialog-center">
+      <Dialog
+        open={spotToDelete !== null}
+        onClose={() => setSpotToDelete(null)}
+        labelledBy="delete-title"
+        className="dialog-center"
+      >
         {spotToDelete && (
           <div className="flex flex-col gap-4 p-6">
             <h2 id="delete-title" className="font-display text-4xl leading-none font-extrabold text-mist">
