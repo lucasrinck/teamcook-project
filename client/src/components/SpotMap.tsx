@@ -1,12 +1,11 @@
 // Carte interactive (Leaflet + React Leaflet) avec le fond CARTO Dark Matter.
 // Les positions viennent de la table spot_infos (infos.latitude / infos.longitude).
 import { useEffect, useMemo } from 'react';
-import { renderToStaticMarkup } from 'react-dom/server';
 import L from 'leaflet';
 import { MapContainer, Marker, TileLayer, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import type { Spot } from '../types/spot';
-import { Icon } from './Icon';
+import { iconSvg } from './Icon';
 
 const PARIS: [number, number] = [48.8606, 2.3522];
 
@@ -39,14 +38,6 @@ function safeColor(color: string | null) {
   return color && /^#[0-9a-fA-F]{6}$/.test(color) ? color : '#D4FF70';
 }
 
-// Le SVG de chaque icône de catégorie, calculé une seule fois puis gardé en mémoire
-const iconSvgCache: Record<string, string> = {};
-
-function categoryIconSvg(name: string) {
-  if (!iconSvgCache[name]) iconSvgCache[name] = renderToStaticMarkup(<Icon name={name} className="" />);
-  return iconSvgCache[name];
-}
-
 // Marqueur personnalisé (divIcon = du HTML stylé en CSS, voir .spot-marker dans index.css).
 // Il contient l'icône de la catégorie : l'information ne repose pas que sur la couleur.
 function createMarkerIcon(spot: Spot, selected: boolean) {
@@ -56,7 +47,7 @@ function createMarkerIcon(spot: Spot, selected: boolean) {
 
   return L.divIcon({
     className: 'spot-marker-wrapper',
-    html: `<span class="${classes.join(' ')}" style="--marker-color: ${safeColor(spot.category.color)}">${categoryIconSvg(spot.category.icon ?? 'map-pin')}</span>`,
+    html: `<span class="${classes.join(' ')}" style="--marker-color: ${safeColor(spot.category.color)}">${iconSvg(spot.category.icon ?? 'map-pin')}</span>`,
     iconSize: [40, 40],
     iconAnchor: [20, 20],
   });
