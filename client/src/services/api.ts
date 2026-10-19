@@ -1,7 +1,7 @@
 // Toutes les requêtes HTTP du frontend passent par ce fichier.
 // React ne parle JAMAIS directement à Supabase : il appelle l'API Express,
 // qui est la seule à connaître la clé secrète.
-import type { Category, FieldError, Spot, SpotInput } from '../types/spot';
+import type { Category, Spot, SpotInput } from '../types/spot';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -9,15 +9,13 @@ if (!API_URL) {
   console.error('VITE_API_URL est manquant : copie client/.env.example vers client/.env');
 }
 
-// Erreur renvoyée par l'API, avec son code HTTP et le détail par champ
+// Erreur renvoyée par l'API, avec son code HTTP
 export class ApiError extends Error {
   status: number;
-  details: FieldError[];
 
-  constructor(status: number, message: string, details: FieldError[] = []) {
+  constructor(status: number, message: string) {
     super(message);
     this.status = status;
-    this.details = details;
   }
 }
 
@@ -47,7 +45,7 @@ async function request<T>(path: string, method = 'GET', body?: unknown, token?: 
   const data = await response.json().catch(() => null);
 
   if (!response.ok) {
-    throw new ApiError(response.status, data?.error ?? `Erreur ${response.status}`, data?.details ?? []);
+    throw new ApiError(response.status, data?.error ?? `Erreur ${response.status}`);
   }
   return data as T;
 }

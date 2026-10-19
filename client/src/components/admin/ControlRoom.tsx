@@ -60,12 +60,7 @@ export function ControlRoom({ token, onLogout }: ControlRoomProps) {
       setFormOpen(false);
       await reload();
     } catch (err) {
-      if (err instanceof ApiError && err.status === 400) {
-        showToast('error', 'Certains champs sont à corriger.');
-      } else {
-        handleApiError(err);
-      }
-      throw err; // le formulaire affiche les erreurs sous les champs
+      handleApiError(err); // 400 : affiche le message du serveur (champs obligatoires)
     }
   }
 

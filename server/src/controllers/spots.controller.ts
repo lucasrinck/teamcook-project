@@ -1,10 +1,7 @@
 // Les routes des lieux : c'est ICI que le serveur appelle Supabase.
 // Chaque fonction lit la requête, interroge la base, puis répond avec un code HTTP.
 import type { Request, Response } from 'express';
-import type { PostgrestError } from '@supabase/supabase-js';
 import { supabase } from '../config/supabase.js';
-import type { Spot } from '../types/spot.js';
-import { validateSpot } from '../validators/spot.validator.js';
 
 // Colonnes à lire, avec les JOINTURES vers les deux autres tables :
 // - category:categories(...)  -> la catégorie liée par category_id
@@ -18,6 +15,13 @@ const SPOT_COLUMNS =
 function readId(req: Request<{ id: string }>): number | null {
   const id = Number(req.params.id);
   return Number.isInteger(id) && id > 0 ? id : null;
+}
+
+// true si un champ obligatoire est vide (le serveur ne fait jamais confiance au formulaire).
+// latitude et longitude : on teste "== null" car 0 est une valeur valide.
+function hasMissingField(body: Record<string, unknown>) {
+  const { name, category_id, city, latitude, longitude } = body;
+  return !name || !category_id || !city || latitude == null || longitude == null;
 }
 
 // Les colonnes de la table spots
@@ -42,27 +46,8 @@ function infosRow(body: Record<string, unknown>) {
 
 // Relit un lieu complet (avec catégorie et localisation) pour le renvoyer au front
 async function findSpot(id: number) {
-  const { data } = await supabase
-    .from('spots')
-    .select(SPOT_COLUMNS)
-    .eq('id', id)
-    .maybeSingle()
-    .overrideTypes<Spot, { merge: false }>(); // indique à TypeScript la forme du résultat
-  return data;
-}
-
-// Erreur renvoyée par Supabase -> réponse HTTP
-function sendDbError(res: Response, error: PostgrestError) {
-  // 23503 = clé étrangère : la catégorie choisie n'existe pas
-  if (error.code === '23503') {
-    res.status(400).json({
-      error: 'Données invalides',
-      details: [{ field: 'category_id', message: "Cette catégorie n'existe pas" }],
-    });
-    return;
-  }
-  console.error(error);
-  res.status(500).json({ error: 'Erreur de base de données' });
+  const { data } = await supabase.from('spots').select(SPOT_COLUMNS).eq('id', id);
+  return data?.[0] ?? null; // Supabase renvoie une liste : on garde le premier (et seul) lieu
 }
 
 // ---------- Les routes ----------
@@ -71,7 +56,10 @@ function sendDbError(res: Response, error: PostgrestError) {
 export async function getSpots(req: Request, res: Response) {
   const { data, error } = await supabase.from('spots').select(SPOT_COLUMNS).order('id');
 
-  if (error) return sendDbError(res, error);
+  if (error) {
+    res.status(500).json({ error: 'Erreur de base de données' });
+    return;
+  }
   res.status(200).json(data);
 }
 
@@ -79,15 +67,17 @@ export async function getSpots(req: Request, res: Response) {
 export async function createSpot(req: Request, res: Response) {
   const body = req.body ?? {};
 
-  const errors = validateSpot(body);
-  if (errors.length > 0) {
-    res.status(400).json({ error: 'Données invalides', details: errors });
+  if (hasMissingField(body)) {
+    res.status(400).json({ error: 'Nom, catégorie, ville, latitude et longitude sont obligatoires' });
     return;
   }
 
   // 1. On crée le lieu dans "spots" et on récupère son id
   const { data: created, error } = await supabase.from('spots').insert(spotRow(body)).select('id').single();
-  if (error) return sendDbError(res, error);
+  if (error) {
+    res.status(500).json({ error: 'Erreur de base de données' });
+    return;
+  }
 
   // 2. On crée sa localisation dans "spot_infos", reliée par spot_id
   const { error: infosError } = await supabase.from('spot_infos').insert({ spot_id: created.id, ...infosRow(body) });
@@ -96,7 +86,8 @@ export async function createSpot(req: Request, res: Response) {
     // Pas de transaction possible entre deux requêtes : si la localisation
     // échoue, on supprime le lieu qu'on vient de créer pour ne pas le laisser à moitié.
     await supabase.from('spots').delete().eq('id', created.id);
-    return sendDbError(res, infosError);
+    res.status(500).json({ error: 'Erreur de base de données' });
+    return;
   }
 
   res.status(201).json(await findSpot(created.id));
@@ -111,16 +102,18 @@ export async function updateSpot(req: Request<{ id: string }>, res: Response) {
   }
 
   const body = req.body ?? {};
-  const errors = validateSpot(body);
-  if (errors.length > 0) {
-    res.status(400).json({ error: 'Données invalides', details: errors });
+  if (hasMissingField(body)) {
+    res.status(400).json({ error: 'Nom, catégorie, ville, latitude et longitude sont obligatoires' });
     return;
   }
 
   // 1. On modifie le lieu. .select('id') renvoie les lignes modifiées :
   //    si la liste est vide, c'est que le lieu n'existe pas.
   const { data, error } = await supabase.from('spots').update(spotRow(body)).eq('id', id).select('id');
-  if (error) return sendDbError(res, error);
+  if (error) {
+    res.status(500).json({ error: 'Erreur de base de données' });
+    return;
+  }
   if (data.length === 0) {
     res.status(404).json({ error: 'Lieu introuvable' });
     return;
@@ -130,7 +123,10 @@ export async function updateSpot(req: Request<{ id: string }>, res: Response) {
   const { error: infosError } = await supabase
     .from('spot_infos')
     .upsert({ spot_id: id, ...infosRow(body) }, { onConflict: 'spot_id' });
-  if (infosError) return sendDbError(res, infosError);
+  if (infosError) {
+    res.status(500).json({ error: 'Erreur de base de données' });
+    return;
+  }
 
   res.status(200).json(await findSpot(id));
 }
@@ -145,7 +141,10 @@ export async function deleteSpot(req: Request<{ id: string }>, res: Response) {
   }
 
   const { data, error } = await supabase.from('spots').delete().eq('id', id).select('id');
-  if (error) return sendDbError(res, error);
+  if (error) {
+    res.status(500).json({ error: 'Erreur de base de données' });
+    return;
+  }
   if (data.length === 0) {
     res.status(404).json({ error: 'Lieu introuvable' });
     return;

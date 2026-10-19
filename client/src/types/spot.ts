@@ -38,12 +38,6 @@ export type SpotInput = {
   longitude?: number;
 };
 
-// Une erreur de validation renvoyée par l'API
-export type FieldError = {
-  field: string;
-  message: string;
-};
-
 // Filtres de la page Explorer
 export type SpotFilters = {
   search: string;
