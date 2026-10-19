@@ -3,7 +3,7 @@ import type { Spot } from '../types/spot';
 import { formatLocation, readDescription } from '../utils/spots';
 import { AvailabilityBadge, CategoryBadge, DemoTag } from './Badges';
 import { Icon } from './Icon';
-import { FavoriteButton, RouteButton } from './SpotActions';
+import { FavoriteButton } from './SpotActions';
 import { SpotImage } from './SpotImage';
 
 type SpotCardProps = {
@@ -12,19 +12,9 @@ type SpotCardProps = {
   onExplore: (spot: Spot) => void;
   isFavorite: boolean;
   onToggleFavorite: (id: number) => void;
-  routeStep: number | null; // numéro d'étape dans la Night Route (null si absent)
-  onToggleRoute: (id: number) => void;
 };
 
-export function SpotCard({
-  spot,
-  selected,
-  onExplore,
-  isFavorite,
-  onToggleFavorite,
-  routeStep,
-  onToggleRoute,
-}: SpotCardProps) {
+export function SpotCard({ spot, selected, onExplore, isFavorite, onToggleFavorite }: SpotCardProps) {
   const { isDemo, text } = readDescription(spot.description);
   const location = formatLocation(spot);
 
@@ -69,12 +59,6 @@ export function SpotCard({
         )}
 
         <div className="mt-auto flex items-center justify-end gap-2 pt-3">
-          <RouteButton
-            spotName={spot.name}
-            step={routeStep}
-            canBeAdded={spot.infos !== null}
-            onToggle={() => onToggleRoute(spot.id)}
-          />
           <button type="button" onClick={() => onExplore(spot)} className="btn btn-secondary">
             Explorer
             <span className="sr-only"> {spot.name}</span>

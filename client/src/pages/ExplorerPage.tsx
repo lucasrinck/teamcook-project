@@ -8,14 +8,13 @@ import { Hero } from '../components/Hero';
 import { Icon } from '../components/Icon';
 import { Footer, Navbar } from '../components/Layout';
 import { EASE_OUT, Intro, Reveal, shouldPlayIntro } from '../components/Motion';
-import { NightRoute } from '../components/NightRoute';
 import { SpotCard } from '../components/SpotCard';
 import { SpotDetail } from '../components/SpotDetail';
 import { SpotMap } from '../components/SpotMap';
 import { Loader, StateMessage } from '../components/StateMessage';
 import { useFavorites } from '../hooks/useFavorites';
 import { useSpots } from '../hooks/useSpots';
-import type { Spot, SpotFilters } from '../types/spot';
+import type { SpotFilters } from '../types/spot';
 import { EMPTY_FILTERS, filterSpots, getCities } from '../utils/spots';
 
 export default function ExplorerPage() {
@@ -26,34 +25,14 @@ export default function ExplorerPage() {
   const [mobileView, setMobileView] = useState<'list' | 'map'>('list');
   // Intro animée : une fois par session (calculé une seule fois au chargement de la page)
   const [showIntro, setShowIntro] = useState(shouldPlayIntro);
-  // Bonus : favoris (gardés dans le navigateur) et Night Route (id des étapes, dans l'ordre)
+  // Bonus : favoris, gardés dans le navigateur
   const { favoriteIds, toggleFavorite } = useFavorites();
-  const [routeIds, setRouteIds] = useState<number[]>([]);
 
   // Données filtrées : recalculées seulement quand les lieux, les filtres ou les favoris changent
   const visibleSpots = useMemo(() => filterSpots(spots, filters, favoriteIds), [spots, filters, favoriteIds]);
   const cities = useMemo(() => getCities(spots), [spots]);
   const selectedSpot = spots.find((spot) => spot.id === selectedId) ?? null;
   const mappedCount = visibleSpots.filter((spot) => spot.infos !== null).length;
-
-  // Les étapes de la Night Route, dans l'ordre où elles ont été ajoutées
-  const routeStops: Spot[] = [];
-  for (const id of routeIds) {
-    const spot = spots.find((s) => s.id === id);
-    if (spot) routeStops.push(spot);
-  }
-
-  // Ajoute le lieu à la fin de la route, ou le retire s'il y est déjà
-  // (setRouteIds((current) => ...) part toujours de la liste à jour)
-  function toggleRouteStop(id: number) {
-    setRouteIds((current) => (current.includes(id) ? current.filter((stopId) => stopId !== id) : [...current, id]));
-  }
-
-  // Numéro d'étape d'un lieu (1, 2, 3...), ou null s'il n'est pas dans la route
-  function routeStepOf(id: number) {
-    const index = routeIds.indexOf(id);
-    return index === -1 ? null : index + 1;
-  }
 
   return (
     <>
@@ -88,10 +67,6 @@ export default function ExplorerPage() {
             cities={cities}
             favoritesCount={favoriteIds.length}
           />
-
-          {routeStops.length > 0 && (
-            <NightRoute stops={routeStops} onRemove={toggleRouteStop} onClear={() => setRouteIds([])} />
-          )}
 
           {status === 'loading' && <Loader />}
 
@@ -167,12 +142,7 @@ export default function ExplorerPage() {
                 <div
                   className={`${mobileView === 'map' ? 'block' : 'hidden'} h-[70svh] lg:sticky lg:top-4 lg:block lg:h-[calc(100svh-2rem)] lg:w-[54%] lg:shrink-0`}
                 >
-                  <SpotMap
-                    spots={visibleSpots}
-                    selectedId={selectedId}
-                    onSelect={setSelectedId}
-                    routeStops={routeStops}
-                  />
+                  <SpotMap spots={visibleSpots} selectedId={selectedId} onSelect={setSelectedId} />
                 </div>
 
                 {/* Liste en cartes avec flex : les cartes passent à la ligne (flex-wrap) */}
@@ -195,8 +165,6 @@ export default function ExplorerPage() {
                           onExplore={(s) => setSelectedId(s.id)}
                           isFavorite={favoriteIds.includes(spot.id)}
                           onToggleFavorite={toggleFavorite}
-                          routeStep={routeStepOf(spot.id)}
-                          onToggleRoute={toggleRouteStop}
                         />
                       </motion.li>
                     ))}
@@ -218,8 +186,6 @@ export default function ExplorerPage() {
             onClose={() => setSelectedId(null)}
             isFavorite={favoriteIds.includes(selectedSpot.id)}
             onToggleFavorite={toggleFavorite}
-            routeStep={routeStepOf(selectedSpot.id)}
-            onToggleRoute={toggleRouteStop}
           />
         )}
       </AnimatePresence>
