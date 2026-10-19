@@ -1,13 +1,24 @@
-// Écran temporaire de l'étape 2 : vérifie que Tailwind et les tokens fonctionnent.
-// Les pages Explorer (/) et Admin (/admin) arrivent à l'étape 6.
+// Routes de l'application (react-router) :
+//   /       -> page Explorer (client)
+//   /admin  -> page Control Room (administrateur)
+// Sur Netlify, le fichier public/_redirects renvoie toutes les URL vers
+// index.html pour que /admin fonctionne aussi après un rechargement.
+import { BrowserRouter, Route, Routes } from 'react-router';
+import { ToastProvider } from './hooks/useToast';
+import AdminPage from './pages/AdminPage';
+import ExplorerPage from './pages/ExplorerPage';
+import NotFoundPage from './pages/NotFoundPage';
+
 export default function App() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center gap-4 px-4 text-center">
-      <p className="text-sm tracking-[0.4em] text-ash">AFTERDARK</p>
-      <h1 className="text-4xl font-semibold text-mist sm:text-6xl">
-        La nuit cache <span className="text-acid">bien plus.</span>
-      </h1>
-      <p className="text-volt">Your city. Your night. Your story.</p>
-    </main>
+    <BrowserRouter>
+      <ToastProvider>
+        <Routes>
+          <Route path="/" element={<ExplorerPage />} />
+          <Route path="/admin" element={<AdminPage />} />
+          <Route path="*" element={<NotFoundPage />} />
+        </Routes>
+      </ToastProvider>
+    </BrowserRouter>
   );
 }

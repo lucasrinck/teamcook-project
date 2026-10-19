@@ -221,6 +221,14 @@ describe('Protection par token (requireAdmin)', () => {
   });
 });
 
+describe('GET /api/admin/verify', () => {
+  it('renvoie 204 avec le bon token, 401 sinon', async () => {
+    expect((await request(app).get('/api/admin/verify').set('x-admin-token', TOKEN)).status).toBe(204);
+    expect((await request(app).get('/api/admin/verify').set('x-admin-token', 'faux')).status).toBe(401);
+    expect(calls).toHaveLength(0);
+  });
+});
+
 describe('Routes complémentaires', () => {
   it('GET /api/health renvoie 200', async () => {
     const res = await request(app).get('/api/health');
