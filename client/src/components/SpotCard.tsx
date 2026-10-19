@@ -1,7 +1,7 @@
 // Carte d'un lieu dans la grille de la page Explorer.
 import type { Spot } from '../types/spot';
 import { formatLocation, readDescription } from '../utils/spots';
-import { AvailabilityBadge, CategoryBadge, DemoTag } from './Badges';
+import { CategoryBadge, DemoTag } from './Badges';
 import { Icon } from './Icon';
 import { FavoriteButton } from './SpotActions';
 import { SpotImage } from './SpotImage';
@@ -28,13 +28,8 @@ export function SpotCard({ spot, selected, onExplore, isFavorite, onToggleFavori
         <SpotImage
           src={spot.images[0]}
           alt={`Photo : ${spot.name}`}
-          className={`h-full w-full object-cover transition duration-700 group-hover:scale-105 ${
-            spot.available ? '' : 'grayscale'
-          }`}
+          className="h-full w-full object-cover transition duration-700 group-hover:scale-105"
         />
-        <div className="absolute top-3 left-3">
-          <AvailabilityBadge available={spot.available} />
-        </div>
         <div className="absolute top-2 right-2">
           <FavoriteButton spotName={spot.name} active={isFavorite} onToggle={() => onToggleFavorite(spot.id)} />
         </div>
@@ -45,11 +40,7 @@ export function SpotCard({ spot, selected, onExplore, isFavorite, onToggleFavori
           <CategoryBadge category={spot.category} />
           {isDemo && <DemoTag />}
         </div>
-        <h3
-          className={`font-display text-[1.75rem] leading-none font-bold ${spot.available ? 'text-mist' : 'text-mist/60'}`}
-        >
-          {spot.name}
-        </h3>
+        <h3 className="font-display text-[1.75rem] leading-none font-bold text-mist">{spot.name}</h3>
         {text && <p className="line-clamp-2 text-sm leading-relaxed text-ash">{text}</p>}
         {location && (
           <p className="flex items-start gap-1.5 text-sm text-mist/75">

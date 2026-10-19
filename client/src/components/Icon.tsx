@@ -6,7 +6,8 @@
 const ICONS: Record<string, string> = {
   // --- Catégories ---
   martini: '<path d="M5 4h14l-7 8z"/><path d="M12 12v8M8 20h8"/>',
-  'building-2': '<path d="M4 21V5l8-2v18M12 9l8 2v10M2 21h20"/><path d="M8 8h.01M8 12h.01M8 16h.01M16 14h.01M16 18h.01"/>',
+  'building-2':
+    '<path d="M4 21V5l8-2v18M12 9l8 2v10M2 21h20"/><path d="M8 8h.01M8 12h.01M8 16h.01M16 14h.01M16 18h.01"/>',
   camera:
     '<path d="M4 8h3l2-3h6l2 3h3a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13" r="3.5"/>',
   'moon-star': '<path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/><path d="M17 3v4M15 5h4"/>',
@@ -34,7 +35,6 @@ const ICONS: Record<string, string> = {
   'chevron-right': '<path d="m9 6 6 6-6 6"/>',
   refresh: '<path d="M20 11a8 8 0 1 0-2.3 5.7M20 5v6h-6"/>',
   image: '<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m21 16-5-5-9 9"/>',
-  power: '<path d="M12 3v8M6.3 7a8 8 0 1 0 11.4 0"/>',
   heart: '<path d="M12 20s-7-4.4-9.2-9A5 5 0 0 1 12 6a5 5 0 0 1 9.2 5c-2.2 4.6-9.2 9-9.2 9z"/>',
 };
 

@@ -28,7 +28,10 @@ function navLinkClass({ isActive }: { isActive: boolean }) {
 export function Navbar({ overlay = false }: { overlay?: boolean }) {
   return (
     <header className={overlay ? 'absolute inset-x-0 top-0 z-20' : 'border-b border-white/6'}>
-      <nav aria-label="Navigation principale" className="mx-auto flex max-w-7xl items-center justify-between gap-2 px-4 py-4 sm:px-8">
+      <nav
+        aria-label="Navigation principale"
+        className="mx-auto flex max-w-7xl items-center justify-between gap-2 px-4 py-4 sm:px-8"
+      >
         <Link to="/" className="rounded-lg" aria-label="AFTERDARK, retour à l'accueil">
           <Logo />
         </Link>
@@ -58,8 +61,8 @@ export function Footer() {
           <p>Your city. Your night. Your story.</p>
         </div>
         <p className="max-w-md sm:text-right">
-          Projet étudiant. Les lieux, descriptions et disponibilités affichés sont fictifs et servent uniquement à la
-          démonstration. Photos : Unsplash.
+          Projet étudiant. Les lieux et descriptions affichés sont fictifs et servent uniquement à la démonstration.
+          Photos : Unsplash.
         </p>
       </div>
     </footer>

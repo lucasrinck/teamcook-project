@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import type { Spot } from '../types/spot';
 import { readDescription } from '../utils/spots';
-import { AvailabilityBadge, CategoryBadge, DemoTag } from './Badges';
+import { CategoryBadge, DemoTag } from './Badges';
 import { Icon } from './Icon';
 import { EASE_OUT } from './Motion';
 import { FavoriteButton } from './SpotActions';
@@ -64,7 +64,6 @@ export function SpotDetail({ spot, onClose, isFavorite, onToggleFavorite }: Spot
           <Icon name="chevron-left" />
           Retour à la liste
         </button>
-        <AvailabilityBadge available={spot.available} />
       </div>
 
       {/* Galerie */}
@@ -72,7 +71,7 @@ export function SpotDetail({ spot, onClose, isFavorite, onToggleFavorite }: Spot
         <SpotImage
           src={spot.images[imageIndex]}
           alt={`Photo ${imageIndex + 1} sur ${Math.max(imageCount, 1)} : ${spot.name}`}
-          className={`aspect-[4/3] w-full object-cover ${spot.available ? '' : 'grayscale'}`}
+          className="aspect-[4/3] w-full object-cover"
         />
         {imageCount > 1 && (
           <div className="absolute inset-x-3 bottom-3 flex items-center justify-between">
@@ -140,10 +139,7 @@ export function SpotDetail({ spot, onClose, isFavorite, onToggleFavorite }: Spot
         </div>
 
         {isDemo && (
-          <p className="text-sm text-ash">
-            Ce lieu est inventé pour la démonstration : son adresse est approximative et sa disponibilité n'est pas
-            réelle.
-          </p>
+          <p className="text-sm text-ash">Ce lieu est inventé pour la démonstration : son adresse est approximative.</p>
         )}
       </div>
     </motion.aside>

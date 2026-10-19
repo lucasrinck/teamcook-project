@@ -74,10 +74,6 @@ export function updateSpot(id: number, input: SpotInput, token: string) {
   return request<Spot>(`/spots/${id}`, 'PUT', input, token);
 }
 
-export function setSpotAvailability(id: number, available: boolean, token: string) {
-  return request<Spot>(`/spots/${id}/availability`, 'PATCH', { available }, token);
-}
-
 export function deleteSpot(id: number, token: string) {
   return request<void>(`/spots/${id}`, 'DELETE', undefined, token);
 }

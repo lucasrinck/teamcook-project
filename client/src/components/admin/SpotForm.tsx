@@ -15,7 +15,6 @@ type FormValues = {
   category_id: string;
   description: string;
   images: string[];
-  available: boolean;
   address: string;
   city: string;
   latitude: string;
@@ -29,7 +28,6 @@ function toFormValues(spot: Spot | null): FormValues {
     category_id: spot ? String(spot.category.id) : '',
     description: spot?.description ?? '',
     images: spot ? [...spot.images] : [],
-    available: spot?.available ?? true,
     address: spot?.infos?.address ?? '',
     city: spot?.infos?.city ?? 'Paris',
     latitude: spot?.infos ? String(spot.infos.latitude) : '',
@@ -49,7 +47,6 @@ function toSpotInput(values: FormValues): SpotInput {
     category_id: toNumber(values.category_id),
     description: values.description,
     images: values.images.map((url) => url.trim()),
-    available: values.available,
     address: values.address,
     city: values.city,
     latitude: toNumber(values.latitude),
@@ -72,7 +69,7 @@ export function SpotForm({ spot, categories, onSubmit, onCancel }: SpotFormProps
   const [submitting, setSubmitting] = useState(false);
 
   // Modifie un champ en gardant les autres
-  function setField(field: keyof FormValues, value: string | boolean) {
+  function setField(field: keyof FormValues, value: string) {
     setValues({ ...values, [field]: value });
   }
 
@@ -119,7 +116,12 @@ export function SpotForm({ spot, categories, onSubmit, onCancel }: SpotFormProps
       )}
 
       <Field id="name" label="Nom" required error={errors.name}>
-        <input id="name" value={values.name} onChange={(e) => setField('name', e.target.value)} {...fieldProps('name', errors)} />
+        <input
+          id="name"
+          value={values.name}
+          onChange={(e) => setField('name', e.target.value)}
+          {...fieldProps('name', errors)}
+        />
       </Field>
 
       <Field id="category_id" label="Catégorie" required error={errors.category_id}>
@@ -138,7 +140,12 @@ export function SpotForm({ spot, categories, onSubmit, onCancel }: SpotFormProps
         </select>
       </Field>
 
-      <Field id="description" label="Description" error={errors.description} hint={`${values.description.length} / 1000 caractères`}>
+      <Field
+        id="description"
+        label="Description"
+        error={errors.description}
+        hint={`${values.description.length} / 1000 caractères`}
+      >
         <textarea
           id="description"
           rows={4}
@@ -160,7 +167,12 @@ export function SpotForm({ spot, categories, onSubmit, onCancel }: SpotFormProps
           return (
             <div key={index} className="flex flex-col gap-1.5">
               <div className="flex items-center gap-3">
-                <SpotImage src={url.trim() || undefined} alt={`Aperçu de l'image ${index + 1}`} className="size-14 shrink-0 rounded-xl object-cover" compact />
+                <SpotImage
+                  src={url.trim() || undefined}
+                  alt={`Aperçu de l'image ${index + 1}`}
+                  className="size-14 shrink-0 rounded-xl object-cover"
+                  compact
+                />
                 <label htmlFor={`image-${index}`} className="sr-only">
                   URL de l'image {index + 1}
                 </label>
@@ -175,7 +187,12 @@ export function SpotForm({ spot, categories, onSubmit, onCancel }: SpotFormProps
                   aria-describedby={error ? `image-${index}-error` : undefined}
                   className="field-input"
                 />
-                <button type="button" onClick={() => removeImage(index)} className="btn btn-ghost shrink-0 px-3" aria-label={`Retirer l'image ${index + 1}`}>
+                <button
+                  type="button"
+                  onClick={() => removeImage(index)}
+                  className="btn btn-ghost shrink-0 px-3"
+                  aria-label={`Retirer l'image ${index + 1}`}
+                >
                   <Icon name="x" />
                   <span className="hidden sm:inline">Retirer</span>
                 </button>
@@ -189,23 +206,33 @@ export function SpotForm({ spot, categories, onSubmit, onCancel }: SpotFormProps
           );
         })}
         {errors.images && <p className="field-error">{errors.images}</p>}
-        <button type="button" onClick={addImage} disabled={values.images.length >= MAX_IMAGES} className="btn btn-ghost self-start">
+        <button
+          type="button"
+          onClick={addImage}
+          disabled={values.images.length >= MAX_IMAGES}
+          className="btn btn-ghost self-start"
+        >
           <Icon name="plus" />
           Ajouter une image
         </button>
       </fieldset>
 
-      <label className="flex min-h-11 cursor-pointer items-center gap-3 text-mist">
-        <input type="checkbox" checked={values.available} onChange={(e) => setField('available', e.target.checked)} className="switch" />
-        Disponible
-      </label>
-
       <Field id="address" label="Adresse" error={errors.address}>
-        <input id="address" value={values.address} onChange={(e) => setField('address', e.target.value)} {...fieldProps('address', errors)} />
+        <input
+          id="address"
+          value={values.address}
+          onChange={(e) => setField('address', e.target.value)}
+          {...fieldProps('address', errors)}
+        />
       </Field>
 
       <Field id="city" label="Ville" required error={errors.city}>
-        <input id="city" value={values.city} onChange={(e) => setField('city', e.target.value)} {...fieldProps('city', errors)} />
+        <input
+          id="city"
+          value={values.city}
+          onChange={(e) => setField('city', e.target.value)}
+          {...fieldProps('city', errors)}
+        />
       </Field>
 
       <div className="grid gap-6 sm:grid-cols-2">

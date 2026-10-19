@@ -2,10 +2,11 @@
 // Chaque action appelle l'API Express, puis recharge les données depuis l'API.
 import { useState } from 'react';
 import { AnimatePresence } from 'framer-motion';
-import { ApiError, createSpot, deleteSpot, setSpotAvailability, updateSpot } from '../../services/api';
+import { ApiError, createSpot, deleteSpot, updateSpot } from '../../services/api';
 import { useSpots } from '../../hooks/useSpots';
 import { useToast } from '../../hooks/useToast';
 import type { Spot, SpotInput } from '../../types/spot';
+import { getCities } from '../../utils/spots';
 import { Dialog } from '../Dialog';
 import { Icon } from '../Icon';
 import { Loader, StateMessage } from '../StateMessage';
@@ -25,8 +26,6 @@ export function ControlRoom({ token, onLogout }: ControlRoomProps) {
   const [editingSpot, setEditingSpot] = useState<Spot | null>(null); // null = ajout
   const [spotToDelete, setSpotToDelete] = useState<Spot | null>(null);
   const [busyId, setBusyId] = useState<number | null>(null);
-
-  const availableCount = spots.filter((spot) => spot.available).length;
 
   // Erreur d'API commune : 401 = token refusé -> retour à l'écran de déverrouillage
   function handleApiError(err: unknown) {
@@ -70,20 +69,6 @@ export function ControlRoom({ token, onLogout }: ControlRoomProps) {
     }
   }
 
-  // PATCH : disponibilité
-  async function handleToggleAvailability(spot: Spot) {
-    setBusyId(spot.id);
-    try {
-      await setSpotAvailability(spot.id, !spot.available, token);
-      showToast('success', `« ${spot.name} » est maintenant ${spot.available ? 'indisponible' : 'disponible'}.`);
-      await reload();
-    } catch (err) {
-      handleApiError(err);
-    } finally {
-      setBusyId(null);
-    }
-  }
-
   // DELETE, après confirmation
   async function handleConfirmDelete() {
     if (!spotToDelete) return;
@@ -107,7 +92,7 @@ export function ControlRoom({ token, onLogout }: ControlRoomProps) {
         <div className="flex flex-col gap-3">
           <h1 className="font-display text-6xl leading-none font-black text-mist sm:text-7xl">Control Room</h1>
           <p className="max-w-lg text-ash">
-            Ajoute, modifie, désactive ou supprime les lieux. Chaque action est enregistrée dans la base via l'API.
+            Ajoute, modifie ou supprime les lieux. Chaque action est enregistrée dans la base via l'API.
           </p>
         </div>
         <div className="flex flex-wrap gap-3">
@@ -125,8 +110,8 @@ export function ControlRoom({ token, onLogout }: ControlRoomProps) {
       {status === 'ready' && (
         <dl className="grid grid-cols-3 divide-x divide-white/8 rounded-3xl border border-white/8">
           <Stat label="Lieux enregistrés" value={spots.length} />
-          <Stat label="Disponibles" value={availableCount} />
-          <Stat label="Indisponibles" value={spots.length - availableCount} />
+          <Stat label="Catégories" value={categories.length} />
+          <Stat label="Villes" value={getCities(spots).length} />
         </dl>
       )}
 
@@ -167,7 +152,6 @@ export function ControlRoom({ token, onLogout }: ControlRoomProps) {
                 key={spot.id}
                 spot={spot}
                 busy={busyId === spot.id}
-                onToggleAvailability={handleToggleAvailability}
                 onEdit={openEditForm}
                 onDelete={setSpotToDelete}
               />

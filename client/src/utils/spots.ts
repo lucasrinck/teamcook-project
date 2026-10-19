@@ -5,7 +5,6 @@ export const EMPTY_FILTERS: SpotFilters = {
   search: '',
   categoryId: null,
   city: '',
-  onlyAvailable: false,
   onlyFavorites: false,
 };
 
@@ -27,7 +26,6 @@ export function filterSpots(spots: Spot[], filters: SpotFilters, favoriteIds: nu
     if (search && !normalizeText(spot.name).includes(search)) return false;
     if (filters.categoryId !== null && spot.category.id !== filters.categoryId) return false;
     if (filters.city && spot.infos?.city !== filters.city) return false;
-    if (filters.onlyAvailable && !spot.available) return false;
     if (filters.onlyFavorites && !favoriteIds.includes(spot.id)) return false;
     return true;
   });
@@ -39,7 +37,6 @@ export function countActiveFilters(filters: SpotFilters) {
   if (filters.search.trim()) count++;
   if (filters.categoryId !== null) count++;
   if (filters.city) count++;
-  if (filters.onlyAvailable) count++;
   if (filters.onlyFavorites) count++;
   return count;
 }

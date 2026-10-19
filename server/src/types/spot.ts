@@ -20,7 +20,6 @@ export type Spot = {
   name: string;
   description: string | null;
   images: string[];
-  available: boolean;
   category: Category;
   infos: SpotInfos | null; // null si le lieu n'a pas de fiche spot_infos
 };

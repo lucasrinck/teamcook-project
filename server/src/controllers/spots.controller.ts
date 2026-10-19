@@ -10,7 +10,7 @@ import { validateSpot } from '../validators/spot.validator.js';
 // - category:categories(...)  -> la catégorie liée par category_id
 // - infos:spot_infos(...)     -> la localisation liée par spot_id
 const SPOT_COLUMNS =
-  'id, name, description, images, available, category:categories(id, name, icon, color), infos:spot_infos(address, city, latitude, longitude)';
+  'id, name, description, images, category:categories(id, name, icon, color), infos:spot_infos(address, city, latitude, longitude)';
 
 // ---------- Petites fonctions utiles ----------
 
@@ -27,7 +27,6 @@ function spotRow(body: Record<string, unknown>) {
     category_id: body.category_id,
     description: body.description || null, // champ vide -> null
     images: body.images ?? [],
-    available: body.available ?? true, // disponible par défaut
   };
 }
 
@@ -132,30 +131,6 @@ export async function updateSpot(req: Request<{ id: string }>, res: Response) {
     .from('spot_infos')
     .upsert({ spot_id: id, ...infosRow(body) }, { onConflict: 'spot_id' });
   if (infosError) return sendDbError(res, infosError);
-
-  res.status(200).json(await findSpot(id));
-}
-
-// PATCH /api/spots/:id/availability -> 200 + lieu modifié (bouton dispo / pas dispo)
-export async function updateAvailability(req: Request<{ id: string }>, res: Response) {
-  const id = readId(req);
-  if (id === null) {
-    res.status(400).json({ error: 'Identifiant invalide' });
-    return;
-  }
-
-  const available = req.body?.available;
-  if (typeof available !== 'boolean') {
-    res.status(400).json({ error: 'Données invalides', details: [{ field: 'available', message: 'available doit être true ou false' }] });
-    return;
-  }
-
-  const { data, error } = await supabase.from('spots').update({ available }).eq('id', id).select('id');
-  if (error) return sendDbError(res, error);
-  if (data.length === 0) {
-    res.status(404).json({ error: 'Lieu introuvable' });
-    return;
-  }
 
   res.status(200).json(await findSpot(id));
 }

@@ -2,19 +2,18 @@
 import { motion } from 'framer-motion';
 import type { Spot } from '../../types/spot';
 import { formatLocation } from '../../utils/spots';
-import { AvailabilityBadge, CategoryBadge } from '../Badges';
+import { CategoryBadge } from '../Badges';
 import { Icon } from '../Icon';
 import { SpotImage } from '../SpotImage';
 
 type AdminSpotRowProps = {
   spot: Spot;
   busy: boolean; // une action est en cours sur ce lieu
-  onToggleAvailability: (spot: Spot) => void;
   onEdit: (spot: Spot) => void;
   onDelete: (spot: Spot) => void;
 };
 
-export function AdminSpotRow({ spot, busy, onToggleAvailability, onEdit, onDelete }: AdminSpotRowProps) {
+export function AdminSpotRow({ spot, busy, onEdit, onDelete }: AdminSpotRowProps) {
   return (
     // layout + exit : la ligne disparaît en douceur après une suppression, les autres remontent
     <motion.li
@@ -29,7 +28,7 @@ export function AdminSpotRow({ spot, busy, onToggleAvailability, onEdit, onDelet
         <SpotImage
           src={spot.images[0]}
           alt={`Photo : ${spot.name}`}
-          className={`size-16 shrink-0 rounded-2xl object-cover ${spot.available ? '' : 'grayscale'}`}
+          className="size-16 shrink-0 rounded-2xl object-cover"
           compact
         />
         <div className="flex min-w-0 flex-col gap-1">
@@ -42,11 +41,6 @@ export function AdminSpotRow({ spot, busy, onToggleAvailability, onEdit, onDelet
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
-        <AvailabilityBadge available={spot.available} />
-        <button type="button" onClick={() => onToggleAvailability(spot)} disabled={busy} className="btn btn-ghost">
-          <Icon name="power" className="size-4" />
-          {spot.available ? 'Rendre indisponible' : 'Rendre disponible'}
-        </button>
         <button type="button" onClick={() => onEdit(spot)} disabled={busy} className="btn btn-ghost">
           <Icon name="pencil" className="size-4" />
           Modifier

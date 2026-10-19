@@ -6,7 +6,7 @@ import type { FieldError } from '../types/spot.js';
 // Vérifie le corps de la requête. Renvoie la liste des erreurs (vide si tout est bon).
 export function validateSpot(body: Record<string, unknown>): FieldError[] {
   const errors: FieldError[] = [];
-  const { name, category_id, images, available, city, latitude, longitude } = body;
+  const { name, category_id, images, city, latitude, longitude } = body;
 
   if (typeof name !== 'string' || name.trim() === '') {
     errors.push({ field: 'name', message: 'Le nom est obligatoire' });
@@ -28,10 +28,6 @@ export function validateSpot(body: Record<string, unknown>): FieldError[] {
         }
       });
     }
-  }
-
-  if (available !== undefined && typeof available !== 'boolean') {
-    errors.push({ field: 'available', message: 'La disponibilité doit être true ou false' });
   }
 
   if (typeof city !== 'string' || city.trim() === '') {

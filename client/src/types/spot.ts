@@ -20,7 +20,6 @@ export type Spot = {
   name: string;
   description: string | null;
   images: string[];
-  available: boolean;
   category: Category;
   infos: SpotInfos | null; // null : le lieu n'a pas de fiche, il n'apparaît pas sur la carte
 };
@@ -33,7 +32,6 @@ export type SpotInput = {
   category_id?: number;
   description: string;
   images: string[];
-  available: boolean;
   address: string;
   city: string;
   latitude?: number;
@@ -51,6 +49,5 @@ export type SpotFilters = {
   search: string;
   categoryId: number | null;
   city: string;
-  onlyAvailable: boolean;
   onlyFavorites: boolean;
 };

@@ -5,7 +5,6 @@ import { Link } from 'react-router';
 import { AnimatePresence, motion } from 'framer-motion';
 import { FiltersBar } from '../components/FiltersBar';
 import { Hero } from '../components/Hero';
-import { Icon } from '../components/Icon';
 import { Footer, Navbar } from '../components/Layout';
 import { EASE_OUT, Intro, Reveal, shouldPlayIntro } from '../components/Motion';
 import { SpotCard } from '../components/SpotCard';
@@ -21,8 +20,6 @@ export default function ExplorerPage() {
   const { spots, categories, status, error, retry } = useSpots();
   const [filters, setFilters] = useState<SpotFilters>(EMPTY_FILTERS);
   const [selectedId, setSelectedId] = useState<number | null>(null);
-  // Sur mobile, on affiche soit la liste, soit la carte (sur ordinateur : les deux)
-  const [mobileView, setMobileView] = useState<'list' | 'map'>('list');
   // Intro animée : une fois par session (calculé une seule fois au chargement de la page)
   const [showIntro, setShowIntro] = useState(shouldPlayIntro);
   // Bonus : favoris, gardés dans le navigateur
@@ -32,7 +29,6 @@ export default function ExplorerPage() {
   const visibleSpots = useMemo(() => filterSpots(spots, filters, favoriteIds), [spots, filters, favoriteIds]);
   const cities = useMemo(() => getCities(spots), [spots]);
   const selectedSpot = spots.find((spot) => spot.id === selectedId) ?? null;
-  const mappedCount = visibleSpots.filter((spot) => spot.infos !== null).length;
 
   return (
     <>
@@ -40,7 +36,7 @@ export default function ExplorerPage() {
 
       <Navbar overlay />
       <main>
-        <Hero ready={!showIntro} onExploreMap={() => setMobileView('map')} />
+        <Hero ready={!showIntro} />
 
         <section
           id="explorer"
@@ -112,65 +108,36 @@ export default function ExplorerPage() {
 
           {status === 'ready' && visibleSpots.length > 0 && (
             <>
-              {/* Choix Liste / Carte, seulement sur mobile et tablette */}
-              <div
-                role="group"
-                aria-label="Affichage"
-                className="grid grid-cols-2 gap-1 rounded-full border border-white/10 p-1 lg:hidden"
-              >
-                <button
-                  type="button"
-                  aria-pressed={mobileView === 'list'}
-                  onClick={() => setMobileView('list')}
-                  className="view-toggle"
-                >
-                  Liste
-                </button>
-                <button
-                  type="button"
-                  aria-pressed={mobileView === 'map'}
-                  onClick={() => setMobileView('map')}
-                  className="view-toggle"
-                >
-                  <Icon name="map-pin" className="size-4" />
-                  Carte ({mappedCount})
-                </button>
+              {/* Carte au format paysage, sur toute la largeur */}
+              <div className="aspect-[4/3] w-full sm:aspect-video lg:aspect-[2/1]">
+                <SpotMap spots={visibleSpots} selectedId={selectedId} onSelect={setSelectedId} />
               </div>
 
-              <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
-                {/* Carte : à gauche et fixe pendant le défilement sur ordinateur */}
-                <div
-                  className={`${mobileView === 'map' ? 'block' : 'hidden'} h-[70svh] lg:sticky lg:top-4 lg:block lg:h-[calc(100svh-2rem)] lg:w-[54%] lg:shrink-0`}
-                >
-                  <SpotMap spots={visibleSpots} selectedId={selectedId} onSelect={setSelectedId} />
-                </div>
-
-                {/* Liste en cartes avec flex : les cartes passent à la ligne (flex-wrap) */}
-                <ul className={`${mobileView === 'list' ? 'flex' : 'hidden'} flex-1 flex-wrap gap-6 lg:flex`}>
-                  {/* Quand les filtres changent, les cartes sortent, entrent et se replacent en douceur (layout) */}
-                  <AnimatePresence mode="popLayout" initial={false}>
-                    {visibleSpots.map((spot) => (
-                      <motion.li
-                        key={spot.id}
-                        layout
-                        initial={{ opacity: 0, scale: 0.96 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.96 }}
-                        transition={{ duration: 0.35, ease: EASE_OUT }}
-                        className="flex w-full sm:w-[calc((100%-1.5rem)/2)] lg:w-full xl:w-[calc((100%-1.5rem)/2)]"
-                      >
-                        <SpotCard
-                          spot={spot}
-                          selected={spot.id === selectedId}
-                          onExplore={(s) => setSelectedId(s.id)}
-                          isFavorite={favoriteIds.includes(spot.id)}
-                          onToggleFavorite={toggleFavorite}
-                        />
-                      </motion.li>
-                    ))}
-                  </AnimatePresence>
-                </ul>
-              </div>
+              {/* Liste en cartes avec flex, sous la carte : les cartes passent à la ligne (flex-wrap) */}
+              <ul className="flex flex-wrap gap-6">
+                {/* Quand les filtres changent, les cartes sortent, entrent et se replacent en douceur (layout) */}
+                <AnimatePresence mode="popLayout" initial={false}>
+                  {visibleSpots.map((spot) => (
+                    <motion.li
+                      key={spot.id}
+                      layout
+                      initial={{ opacity: 0, scale: 0.96 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.96 }}
+                      transition={{ duration: 0.35, ease: EASE_OUT }}
+                      className="flex w-full sm:w-[calc((100%-1.5rem)/2)] lg:w-[calc((100%-3rem)/3)]"
+                    >
+                      <SpotCard
+                        spot={spot}
+                        selected={spot.id === selectedId}
+                        onExplore={(s) => setSelectedId(s.id)}
+                        isFavorite={favoriteIds.includes(spot.id)}
+                        onToggleFavorite={toggleFavorite}
+                      />
+                    </motion.li>
+                  ))}
+                </AnimatePresence>
+              </ul>
             </>
           )}
         </section>

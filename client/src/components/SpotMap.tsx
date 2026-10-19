@@ -43,7 +43,6 @@ function safeColor(color: string | null) {
 function createMarkerIcon(spot: Spot, selected: boolean) {
   const classes = ['spot-marker'];
   if (selected) classes.push('is-selected');
-  if (!spot.available) classes.push('is-unavailable');
 
   return L.divIcon({
     className: 'spot-marker-wrapper',
@@ -62,10 +61,7 @@ type SpotMarkerProps = {
 function SpotMarker({ point, selected, onSelect }: SpotMarkerProps) {
   const { spot } = point;
   // L'icône n'est recréée que si son apparence change
-  const icon = useMemo(
-    () => createMarkerIcon(spot, selected),
-    [spot.category.icon, spot.category.color, spot.available, selected],
-  );
+  const icon = useMemo(() => createMarkerIcon(spot, selected), [spot.category.icon, spot.category.color, selected]);
 
   return (
     <Marker
@@ -85,8 +81,7 @@ function FitToPoints({ points }: { points: MapPoint[] }) {
   const ids = points.map((point) => point.spot.id).join(',');
 
   function fit() {
-    const hidden = map.getContainer().clientWidth === 0;
-    if (points.length === 0 || hidden) return;
+    if (points.length === 0) return;
     const bounds = L.latLngBounds(points.map((point) => point.position));
     map.fitBounds(bounds, { padding: [48, 48], maxZoom: 15, animate: !prefersReducedMotion() });
   }
@@ -95,20 +90,6 @@ function FitToPoints({ points }: { points: MapPoint[] }) {
   useEffect(() => {
     fit();
   }, [ids]);
-
-  // Sur mobile, la carte est masquée quand on regarde la liste. Quand elle
-  // réapparaît, Leaflet doit recalculer sa taille (invalidateSize), puis on recadre.
-  useEffect(() => {
-    let wasHidden = map.getContainer().clientWidth === 0;
-    const observer = new ResizeObserver(() => {
-      map.invalidateSize();
-      const hidden = map.getContainer().clientWidth === 0;
-      if (wasHidden && !hidden) fit();
-      wasHidden = hidden;
-    });
-    observer.observe(map.getContainer());
-    return () => observer.disconnect();
-  }, [map, ids]);
 
   return null;
 }
@@ -151,8 +132,20 @@ export function SpotMap({ spots, selectedId, onSelect }: SpotMapProps) {
 
   return (
     <div className="map-frame relative isolate h-full overflow-hidden rounded-[2rem] border border-white/10">
-      <MapContainer center={PARIS} zoom={13} className="h-full w-full" zoomControl={false}>
-        <TileLayer url={BASE_TILES} attribution={ATTRIBUTION} className="map-tiles-base" subdomains="abcd" maxZoom={20} />
+      <MapContainer
+        center={PARIS}
+        zoom={13}
+        className="h-full w-full"
+        zoomControl={false}
+        scrollWheelZoom={false} // la molette fait défiler la page ; zoom avec les boutons + / - ou le pincement
+      >
+        <TileLayer
+          url={BASE_TILES}
+          attribution={ATTRIBUTION}
+          className="map-tiles-base"
+          subdomains="abcd"
+          maxZoom={20}
+        />
         <TileLayer url={LABEL_TILES} className="map-tiles-labels" subdomains="abcd" maxZoom={20} zIndex={2} />
 
         {points.map((point) => (

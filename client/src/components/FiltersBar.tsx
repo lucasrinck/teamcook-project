@@ -103,16 +103,6 @@ export function FiltersBar({ filters, onChange, categories, cities, favoritesCou
           <label className="flex min-h-11 cursor-pointer items-center gap-3 text-sm text-mist">
             <input
               type="checkbox"
-              checked={filters.onlyAvailable}
-              onChange={(event) => update({ onlyAvailable: event.target.checked })}
-              className="switch"
-            />
-            Lieux disponibles uniquement
-          </label>
-
-          <label className="flex min-h-11 cursor-pointer items-center gap-3 text-sm text-mist">
-            <input
-              type="checkbox"
               checked={filters.onlyFavorites}
               onChange={(event) => update({ onlyFavorites: event.target.checked })}
               className="switch"

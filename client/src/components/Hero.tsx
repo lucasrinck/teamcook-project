@@ -10,10 +10,9 @@ const TITLE_LINES = ['La nuit cache', 'bien plus.'];
 
 type HeroProps = {
   ready: boolean; // false pendant l'intro : les animations attendent qu'elle se termine
-  onExploreMap: () => void; // affiche la carte (utile sur mobile, où liste et carte sont séparées)
 };
 
-export function Hero({ ready, onExploreMap }: HeroProps) {
+export function Hero({ ready }: HeroProps) {
   const state = ready ? 'visible' : 'hidden';
 
   return (
@@ -57,7 +56,7 @@ export function Hero({ ready, onExploreMap }: HeroProps) {
             Des lieux secrets. Des nuits inattendues. Ta prochaine histoire commence ici.
           </p>
           <div className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-4">
-            <a href="#explorer" onClick={onExploreMap} className="btn btn-primary">
+            <a href="#explorer" className="btn btn-primary">
               Explorer la carte
             </a>
             <p className="text-ash">Your city. Your night. Your story.</p>
