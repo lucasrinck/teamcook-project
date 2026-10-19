@@ -55,6 +55,12 @@ export const spotBodySchema = z.strictObject({
     .max(180, 'La longitude doit être comprise entre -180 et 180'),
 }, 'Le corps de la requête doit être un objet JSON');
 
+// Corps attendu pour PATCH /api/spots/:id/availability
+export const availabilitySchema = z.strictObject(
+  { available: z.boolean('available doit être true ou false') },
+  'Le corps de la requête doit être un objet JSON',
+);
+
 // Type TypeScript déduit automatiquement du schéma ci-dessus :
 // c'est la forme des données APRÈS validation.
 export type SpotInput = z.infer<typeof spotBodySchema>;

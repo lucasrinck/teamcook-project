@@ -4,13 +4,23 @@
 // au middleware errorHandler.
 import type { Request, Response } from 'express';
 import * as spotsService from '../services/spots.service.js';
-import { spotBodySchema, parseId } from '../validators/spot.validator.js';
+import { spotBodySchema, availabilitySchema, parseId } from '../validators/spot.validator.js';
 import { HttpError } from '../middleware/httpError.js';
 
 // GET /api/spots -> 200 + liste des lieux
 export async function getSpots(req: Request, res: Response) {
   const spots = await spotsService.listSpots();
   res.status(200).json(spots);
+}
+
+// GET /api/spots/:id -> 200 + un lieu, 404 s'il n'existe pas
+export async function getSpot(req: Request<{ id: string }>, res: Response) {
+  const id = parseId(req.params.id);
+
+  const spot = await spotsService.findSpotById(id);
+  if (!spot) throw new HttpError(404, 'Lieu introuvable');
+
+  res.status(200).json(spot);
 }
 
 // POST /api/spots -> 201 + lieu créé
@@ -27,6 +37,17 @@ export async function updateSpot(req: Request<{ id: string }>, res: Response) {
   const input = spotBodySchema.parse(req.body);
 
   const spot = await spotsService.replaceSpot(id, input);
+  if (!spot) throw new HttpError(404, 'Lieu introuvable');
+
+  res.status(200).json(spot);
+}
+
+// PATCH /api/spots/:id/availability -> 200 + lieu modifié, 404 s'il n'existe pas
+export async function updateAvailability(req: Request<{ id: string }>, res: Response) {
+  const id = parseId(req.params.id);
+  const { available } = availabilitySchema.parse(req.body);
+
+  const spot = await spotsService.setAvailability(id, available);
   if (!spot) throw new HttpError(404, 'Lieu introuvable');
 
   res.status(200).json(spot);

@@ -131,6 +131,16 @@ export async function replaceSpot(id: number, input: SpotInput): Promise<Spot | 
   return getWrittenSpot(id);
 }
 
+// PATCH : change seulement la disponibilité. Renvoie null si le lieu n'existe pas.
+export async function setAvailability(id: number, available: boolean): Promise<Spot | null> {
+  const { data, error } = await supabase.from('spots').update({ available }).eq('id', id).select('id');
+
+  if (error) throw toHttpError(error);
+  if (data.length === 0) return null; // aucune ligne modifiée = lieu inexistant
+
+  return getWrittenSpot(id);
+}
+
 // DELETE : supprime le lieu. Renvoie false s'il n'existait pas.
 // La fiche spot_infos est supprimée automatiquement par la base
 // grâce à ON DELETE CASCADE sur spot_infos.spot_id.
