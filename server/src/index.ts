@@ -1,10 +1,7 @@
-// Point d'entrée du serveur : charge le .env puis démarre Express.
-// (La validation complète des variables d'environnement arrive à l'étape 4.)
-import 'dotenv/config';
+// Point d'entrée du serveur : valide le .env puis démarre Express.
+import { env } from './config/env.js';
 import app from './app.js';
 
-const PORT = Number(process.env.PORT) || 3000;
-
-app.listen(PORT, () => {
-  console.log(`AFTERDARK API running on http://localhost:${PORT}/api`);
+app.listen(env.PORT, () => {
+  console.log(`AFTERDARK API running on http://localhost:${env.PORT}/api`);
 });
