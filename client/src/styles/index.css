@@ -1,0 +1,40 @@
+@import 'tailwindcss';
+
+/*
+  Tailwind v4 : les tokens de design se déclarent dans @theme.
+  Chaque couleur génère ses classes utilitaires : bg-charcoal, text-acid, border-forest...
+*/
+@theme {
+  --color-charcoal: #101311; /* Noir charbon : fond principal */
+  --color-acid: #d4ff70; /* Vert acide : accent principal */
+  --color-forest: #202921; /* Vert profond : surfaces, cartes */
+  --color-mist: #dde2d8; /* Gris clair : texte principal */
+  --color-ash: #929b90; /* Gris secondaire : texte secondaire */
+  --color-volt: #8d78ff; /* Violet électrique : accent ponctuel */
+}
+
+@layer base {
+  html {
+    color-scheme: dark;
+  }
+
+  body {
+    @apply bg-charcoal text-mist antialiased;
+  }
+
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-acid;
+  }
+}
+
+/* Respect de prefers-reduced-motion : on coupe les animations CSS décoratives. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
