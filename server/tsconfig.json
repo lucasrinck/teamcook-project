@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    // Node.js moderne en modules ES ("type": "module" dans package.json).
+    // Conséquence : dans les imports relatifs, on écrit l'extension ".js"
+    // (ex. import app from './app.js') car c'est le fichier compilé qui sera exécuté.
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "rootDir": "src",
+    "outDir": "dist",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "types": ["node"]
+  },
+  "include": ["src"]
+}

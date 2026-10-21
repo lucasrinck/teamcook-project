@@ -45,6 +45,13 @@ jobs:
       - name: Build
         run: npm run build -w client
 
+      # Aucun secret serveur ne doit se retrouver dans le bundle public
+      - name: Vérifier l'absence de secrets dans client/dist
+        run: |
+          if grep -rE "SUPABASE_SECRET_KEY|ADMIN_TOKEN|sb_secret_" client/dist; then
+            echo "Secret détecté dans le bundle frontend" && exit 1
+          fi
+
   server:
     name: server
     runs-on: ubuntu-latest
@@ -67,3 +74,6 @@ jobs:
 
       - name: Tests
         run: npm test -w server --if-present
+
+      - name: Build
+        run: npm run build -w server

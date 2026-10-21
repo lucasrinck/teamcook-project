@@ -1,32 +1,35 @@
-# teamcook-project
+# AFTERDARK
 
-Monorepo React (Vite) + Node (Express), géré avec les npm workspaces.
+> La nuit cache bien plus. — *Your city. Your night. Your story.*
+
+Plateforme de découverte urbaine nocturne : lieux secrets (Hidden Spots) et sorties (After Hours).
+Architecture **React → API Express → Supabase**, en monorepo npm workspaces.
+
+> Documentation complète (architecture, base de données, déploiement, préparation à l'oral) : à venir à l'étape 10.
 
 ## Structure
 
 ```
-client/                 Front-end React (Vite)
-  src/
-    components/         Composants UI
-    services/api.js     Appels HTTP vers le back
-    App.jsx, main.jsx
-server/                 API Node / Express
-  src/
-    routes/             Définition des routes (/api/...)
-    controllers/        Logique des routes
-    app.js              Config Express (middlewares, routes, erreurs)
-    index.js            Démarrage du serveur
+client/          React + TypeScript + Vite + Tailwind CSS (page Explorer et page Admin)
+server/          API Express + TypeScript (seul composant qui parle à Supabase)
+supabase/        Migration SQL (schéma) et seed de démonstration
 ```
 
-## Démarrer
+## Démarrer en local
+
+Prérequis : Node.js 20 ou plus.
 
 ```bash
 npm install
-cp server/.env.example server/.env
-npm run dev        # client sur :5173, API sur :3001
+cp server/.env.example server/.env    # puis remplir les valeurs
+cp client/.env.example client/.env
+npm run dev                           # client sur :5173, API sur :3000
 ```
 
-En dev, Vite redirige `/api/*` vers le serveur (voir `client/vite.config.js`).
+| Commande        | Effet                                           |
+| --------------- | ----------------------------------------------- |
+| `npm run dev`   | lance le client et le serveur en parallèle      |
+| `npm run build` | compile le serveur (`server/dist`) et le client (`client/dist`) |
 
 ## Protection de la branche `main`
 
