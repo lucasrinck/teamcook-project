@@ -1,0 +1,40 @@
+# Dependencies
+node_modules
+
+# Build output (will be generated in Docker)
+dist
+
+# Environment files (secrets should not be in image)
+.env
+.env.*
+!.env.example
+
+# Development files
+*.log
+npm-debug.log*
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Git
+.git
+.gitignore
+
+# Docker
+Dockerfile
+.dockerignore
+
+# Tests
+coverage
+*.test.ts
+*.test.tsx
+*.spec.ts
+*.spec.tsx
+__tests__
