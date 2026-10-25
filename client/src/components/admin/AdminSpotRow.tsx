@@ -7,10 +7,10 @@ import { Icon } from '../Icon';
 import { SpotImage } from '../SpotImage';
 
 type AdminSpotRowProps = {
-  spot: Spot;
+  spot: Spot; // le lieu affiché sur cette ligne
   busy: boolean; // une action est en cours sur ce lieu
-  onEdit: (spot: Spot) => void;
-  onDelete: (spot: Spot) => void;
+  onEdit: (spot: Spot) => void; // clic sur "Modifier"
+  onDelete: (spot: Spot) => void; // clic sur "Supprimer" (ouvre la confirmation)
 };
 
 export function AdminSpotRow({ spot, busy, onEdit, onDelete }: AdminSpotRowProps) {
@@ -24,6 +24,7 @@ export function AdminSpotRow({ spot, busy, onEdit, onDelete }: AdminSpotRowProps
       transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
       className="flex flex-col gap-4 rounded-3xl border border-white/8 bg-forest/40 p-4 md:flex-row md:items-center"
     >
+      {/* Partie gauche : miniature, nom, catégorie et adresse */}
       <div className="flex min-w-0 flex-1 items-center gap-4">
         <SpotImage
           src={spot.images[0]}
@@ -32,6 +33,7 @@ export function AdminSpotRow({ spot, busy, onEdit, onDelete }: AdminSpotRowProps
           compact
         />
         <div className="flex min-w-0 flex-col gap-1">
+          {/* truncate : si le nom est trop long, il est coupé avec "..." */}
           <p className="truncate font-display text-2xl leading-none font-bold text-mist">{spot.name}</p>
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
             <CategoryBadge category={spot.category} />
@@ -40,6 +42,7 @@ export function AdminSpotRow({ spot, busy, onEdit, onDelete }: AdminSpotRowProps
         </div>
       </div>
 
+      {/* Partie droite : les boutons d'action (désactivés pendant une action en cours) */}
       <div className="flex flex-wrap items-center gap-2">
         <button type="button" onClick={() => onEdit(spot)} disabled={busy} className="btn btn-ghost">
           <Icon name="pencil" className="size-4" />

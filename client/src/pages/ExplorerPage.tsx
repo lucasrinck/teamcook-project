@@ -17,25 +17,33 @@ import type { SpotFilters } from '../types/spot';
 import { EMPTY_FILTERS, filterSpots, getCities } from '../utils/spots';
 
 export default function ExplorerPage() {
+  // Les données venant de l'API : lieux, catégories, état du chargement, message d'erreur
   const { spots, categories, status, error, retry } = useSpots();
+  // Les filtres choisis par l'utilisateur (vides au départ)
   const [filters, setFilters] = useState<SpotFilters>(EMPTY_FILTERS);
+  // L'id du lieu dont la fiche est ouverte (null = aucune fiche ouverte)
   const [selectedId, setSelectedId] = useState<number | null>(null);
   // Intro animée : une fois par session (calculé une seule fois au chargement de la page)
   const [showIntro, setShowIntro] = useState(shouldPlayIntro);
   // Bonus : favoris, gardés dans le navigateur
   const { favoriteIds, toggleFavorite } = useFavorites();
 
-  // Données filtrées : recalculées seulement quand les lieux, les filtres ou les favoris changent
+  // Données filtrées : recalculées seulement quand les lieux, les filtres ou les favoris changent.
+  // useMemo garde le résultat en mémoire tant que ces trois valeurs ne changent pas.
   const visibleSpots = useMemo(() => filterSpots(spots, filters, favoriteIds), [spots, filters, favoriteIds]);
+  // La liste des villes pour le filtre "Ville"
   const cities = useMemo(() => getCities(spots), [spots]);
+  // Le lieu sélectionné : find() cherche le lieu qui a cet id (ou null s'il n'y en a pas)
   const selectedSpot = spots.find((spot) => spot.id === selectedId) ?? null;
 
   return (
     <>
+      {/* L'intro s'affiche par-dessus tout, puis disparaît avec une animation */}
       <AnimatePresence>{showIntro && <Intro onDone={() => setShowIntro(false)} />}</AnimatePresence>
 
       <Navbar overlay />
       <main>
+        {/* ready : le hero attend la fin de l'intro pour lancer ses animations */}
         <Hero ready={!showIntro} />
 
         <section
@@ -43,6 +51,7 @@ export default function ExplorerPage() {
           aria-labelledby="explorer-title"
           className="mx-auto flex max-w-7xl scroll-mt-4 flex-col gap-8 px-4 py-16 sm:px-8 sm:py-24"
         >
+          {/* Titre de la section + nombre de lieux affichés */}
           <Reveal className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <h2 id="explorer-title" className="font-display text-6xl leading-none font-black text-mist sm:text-7xl">
               Explorer la nuit
@@ -56,6 +65,7 @@ export default function ExplorerPage() {
             )}
           </Reveal>
 
+          {/* La barre de filtres modifie "filters" grâce à setFilters */}
           <FiltersBar
             filters={filters}
             onChange={setFilters}
@@ -64,8 +74,12 @@ export default function ExplorerPage() {
             favoritesCount={favoriteIds.length}
           />
 
+          {/* Un seul de ces blocs s'affiche, selon l'état du chargement et des données */}
+
+          {/* 1. Chargement en cours */}
           {status === 'loading' && <Loader />}
 
+          {/* 2. Erreur : l'API n'a pas répondu */}
           {status === 'error' && (
             <StateMessage
               tone="error"
@@ -80,6 +94,7 @@ export default function ExplorerPage() {
             </StateMessage>
           )}
 
+          {/* 3. Aucun lieu dans la base */}
           {status === 'ready' && spots.length === 0 && (
             <StateMessage
               title="Aucun lieu pour l'instant"
@@ -93,6 +108,7 @@ export default function ExplorerPage() {
             </StateMessage>
           )}
 
+          {/* 4. Des lieux existent, mais aucun ne correspond aux filtres */}
           {status === 'ready' && spots.length > 0 && visibleSpots.length === 0 && (
             <StateMessage
               title="Aucun lieu ne correspond"
@@ -106,10 +122,12 @@ export default function ExplorerPage() {
             </StateMessage>
           )}
 
+          {/* 5. Cas normal : la carte puis la liste des lieux */}
           {status === 'ready' && visibleSpots.length > 0 && (
             <>
               {/* Carte au format paysage, sur toute la largeur */}
               <div className="aspect-[4/3] w-full sm:aspect-video lg:aspect-[2/1]">
+                {/* Un clic sur un marqueur appelle setSelectedId : la fiche du lieu s'ouvre */}
                 <SpotMap spots={visibleSpots} selectedId={selectedId} onSelect={setSelectedId} />
               </div>
 
@@ -117,6 +135,7 @@ export default function ExplorerPage() {
               <ul className="flex flex-wrap gap-6">
                 {/* Quand les filtres changent, les cartes sortent, entrent et se replacent en douceur (layout) */}
                 <AnimatePresence mode="popLayout" initial={false}>
+                  {/* map() crée une carte pour chaque lieu filtré. key aide React à les reconnaître. */}
                   {visibleSpots.map((spot) => (
                     <motion.li
                       key={spot.id}
@@ -125,6 +144,7 @@ export default function ExplorerPage() {
                       animate={{ opacity: 1, scale: 1 }}
                       exit={{ opacity: 0, scale: 0.96 }}
                       transition={{ duration: 0.35, ease: EASE_OUT }}
+                      // Largeur des cartes : 1 par ligne sur mobile, 2 sur tablette, 3 sur ordinateur
                       className="flex w-full sm:w-[calc((100%-1.5rem)/2)] lg:w-[calc((100%-3rem)/3)]"
                     >
                       <SpotCard
@@ -150,7 +170,7 @@ export default function ExplorerPage() {
           <SpotDetail
             key="detail"
             spot={selectedSpot}
-            onClose={() => setSelectedId(null)}
+            onClose={() => setSelectedId(null)} // fermer = plus aucun lieu sélectionné
             isFavorite={favoriteIds.includes(selectedSpot.id)}
             onToggleFavorite={toggleFavorite}
           />

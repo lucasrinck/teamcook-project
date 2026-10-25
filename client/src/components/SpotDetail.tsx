@@ -11,24 +11,26 @@ import { FavoriteButton } from './SpotActions';
 import { SpotImage } from './SpotImage';
 
 type SpotDetailProps = {
-  spot: Spot;
-  onClose: () => void;
+  spot: Spot; // le lieu à afficher
+  onClose: () => void; // ferme la fiche
   isFavorite: boolean;
   onToggleFavorite: (id: number) => void;
 };
 
 export function SpotDetail({ spot, onClose, isFavorite, onToggleFavorite }: SpotDetailProps) {
+  // Numéro de la photo affichée dans la galerie (0 = la première)
   const [imageIndex, setImageIndex] = useState(0);
+  // Référence vers le titre, pour pouvoir lui donner le focus
   const titleRef = useRef<HTMLHeadingElement>(null);
   const { isDemo, text } = readDescription(spot.description);
-  const imageCount = spot.images.length;
+  const imageCount = spot.images.length; // nombre de photos
 
   // Nouveau lieu sélectionné : on revient à la première photo et on place le
   // focus sur le titre (utile au clavier et aux lecteurs d'écran)
   useEffect(() => {
     setImageIndex(0);
     titleRef.current?.focus();
-  }, [spot.id]);
+  }, [spot.id]); // se relance à chaque fois que l'id du lieu change
 
   // Touche Échap : fermer la fiche
   useEffect(() => {
@@ -36,13 +38,16 @@ export function SpotDetail({ spot, onClose, isFavorite, onToggleFavorite }: Spot
       if (event.key === 'Escape') onClose();
     }
     window.addEventListener('keydown', handleKey);
+    // Nettoyage : quand la fiche se ferme, on arrête d'écouter le clavier
     return () => window.removeEventListener('keydown', handleKey);
   }, [onClose]);
 
   // Sur ordinateur le panneau glisse depuis la droite, sur mobile depuis le bas
-  const isDesktop = window.matchMedia('(min-width: 1024px)').matches;
+  const isDesktop = window.matchMedia('(min-width: 1024px)').matches; // écran d'au moins 1024 px ?
   const hiddenPosition = isDesktop ? { x: 48, opacity: 0 } : { y: '100%' };
 
+  // Passe à la photo suivante (step = 1) ou précédente (step = -1).
+  // Le "%" (modulo) fait boucler : après la dernière photo on revient à la première, et inversement.
   function showImage(step: number) {
     setImageIndex((imageIndex + step + imageCount) % imageCount);
   }
@@ -50,9 +55,9 @@ export function SpotDetail({ spot, onClose, isFavorite, onToggleFavorite }: Spot
   return (
     <motion.aside
       aria-labelledby="spot-detail-title"
-      initial={hiddenPosition}
-      animate={{ x: 0, y: 0, opacity: 1 }}
-      exit={hiddenPosition}
+      initial={hiddenPosition} // position de départ (hors de l'écran)
+      animate={{ x: 0, y: 0, opacity: 1 }} // position finale (à sa place)
+      exit={hiddenPosition} // à la fermeture, il repart d'où il vient
       transition={{ duration: 0.45, ease: EASE_OUT }}
       className="fixed inset-x-0 bottom-0 z-40 max-h-[85svh] overflow-y-auto rounded-t-[2rem] border-t border-white/10 bg-charcoal shadow-[0_-30px_80px_-20px_rgba(0,0,0,0.8)] lg:inset-x-auto lg:top-4 lg:right-4 lg:bottom-4 lg:max-h-none lg:w-[28rem] lg:rounded-[2rem] lg:border"
     >
@@ -66,13 +71,15 @@ export function SpotDetail({ spot, onClose, isFavorite, onToggleFavorite }: Spot
         </button>
       </div>
 
-      {/* Galerie */}
+      {/* Galerie : la photo en grand */}
       <div className="relative mx-5 overflow-hidden rounded-3xl">
         <SpotImage
           src={spot.images[imageIndex]}
+          // Math.max(imageCount, 1) évite d'écrire "sur 0" quand il n'y a aucune photo
           alt={`Photo ${imageIndex + 1} sur ${Math.max(imageCount, 1)} : ${spot.name}`}
           className="aspect-[4/3] w-full object-cover"
         />
+        {/* Flèches précédent / suivant, seulement s'il y a plusieurs photos */}
         {imageCount > 1 && (
           <div className="absolute inset-x-3 bottom-3 flex items-center justify-between">
             <button type="button" onClick={() => showImage(-1)} className="gallery-btn" aria-label="Photo précédente">
@@ -88,6 +95,7 @@ export function SpotDetail({ spot, onClose, isFavorite, onToggleFavorite }: Spot
         )}
       </div>
 
+      {/* Miniatures cliquables sous la photo */}
       {imageCount > 1 && (
         <div className="mx-5 mt-3 flex gap-2">
           {spot.images.map((image, index) => (
@@ -97,6 +105,7 @@ export function SpotDetail({ spot, onClose, isFavorite, onToggleFavorite }: Spot
               onClick={() => setImageIndex(index)}
               aria-label={`Afficher la photo ${index + 1}`}
               aria-current={index === imageIndex}
+              // La miniature de la photo affichée a une bordure verte, les autres sont atténuées
               className={`size-14 overflow-hidden rounded-xl border-2 transition ${
                 index === imageIndex ? 'border-acid' : 'border-transparent opacity-60 hover:opacity-100'
               }`}
@@ -113,6 +122,7 @@ export function SpotDetail({ spot, onClose, isFavorite, onToggleFavorite }: Spot
           {isDemo && <DemoTag />}
         </div>
 
+        {/* tabIndex={-1} permet de donner le focus au titre depuis le code (voir useEffect plus haut) */}
         <h2
           id="spot-detail-title"
           ref={titleRef}
@@ -124,10 +134,13 @@ export function SpotDetail({ spot, onClose, isFavorite, onToggleFavorite }: Spot
 
         {text && <p className="leading-relaxed text-mist/80">{text}</p>}
 
+        {/* Bouton favori, version avec texte */}
         <FavoriteButton spotName={spot.name} active={isFavorite} onToggle={() => onToggleFavorite(spot.id)} withLabel />
 
+        {/* Adresse du lieu, ou message s'il n'a pas de localisation */}
         <div className="flex items-start gap-3 rounded-2xl border border-white/8 bg-forest/50 p-4">
           <Icon name="map-pin" className="mt-0.5 size-5 shrink-0 text-acid" />
+          {/* "condition ? A : B" en JSX : on affiche A si la condition est vraie, sinon B */}
           {spot.infos ? (
             <div>
               {spot.infos.address && <p className="text-mist">{spot.infos.address}</p>}
