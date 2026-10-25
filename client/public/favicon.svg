@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- Favicon AFTERDARK : le croissant de lune du logo sur fond noir charbon -->
+  <rect width="32" height="32" rx="8" fill="#101311"/>
+  <mask id="croissant">
+    <rect width="32" height="32" fill="white"/>
+    <circle cx="20.5" cy="12" r="8" fill="black"/>
+  </mask>
+  <circle cx="16" cy="16" r="10" fill="#D4FF70" mask="url(#croissant)"/>
+</svg>
