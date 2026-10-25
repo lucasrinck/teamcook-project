@@ -2,11 +2,9 @@
 // La carte et la liste affichent les MÊMES lieux filtrés (visibleSpots).
 import { useState } from 'react';
 import { Link } from 'react-router';
-import { AnimatePresence, motion } from 'framer-motion';
 import { FiltersBar } from '../components/FiltersBar';
 import { Hero } from '../components/Hero';
 import { Footer, Navbar } from '../components/Layout';
-import { EASE_OUT, Intro, Reveal, shouldPlayIntro } from '../components/Motion';
 import { SpotCard } from '../components/SpotCard';
 import { SpotDetail } from '../components/SpotDetail';
 import { SpotMap } from '../components/SpotMap';
@@ -22,8 +20,6 @@ export default function ExplorerPage() {
   const [filters, setFilters] = useState<SpotFilters>(EMPTY_FILTERS);
   // L'id du lieu dont la fiche est ouverte (null = aucune fiche ouverte)
   const [selectedId, setSelectedId] = useState<number | null>(null);
-  // Intro animée : une fois par session (calculé une seule fois au chargement de la page)
-  const [showIntro, setShowIntro] = useState(shouldPlayIntro);
 
   // Les lieux filtrés : recalculés à chaque affichage (la liste est petite, c'est instantané)
   const visibleSpots = filterSpots(spots, filters);
@@ -32,13 +28,9 @@ export default function ExplorerPage() {
 
   return (
     <>
-      {/* L'intro s'affiche par-dessus tout, puis disparaît avec une animation */}
-      <AnimatePresence>{showIntro && <Intro onDone={() => setShowIntro(false)} />}</AnimatePresence>
-
       <Navbar overlay />
       <main>
-        {/* ready : le hero attend la fin de l'intro pour lancer ses animations */}
-        <Hero ready={!showIntro} />
+        <Hero />
 
         <section
           id="explorer"
@@ -46,7 +38,7 @@ export default function ExplorerPage() {
           className="mx-auto flex max-w-7xl scroll-mt-4 flex-col gap-8 px-4 py-16 sm:px-8 sm:py-24"
         >
           {/* Titre de la section + nombre de lieux affichés */}
-          <Reveal className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <h2 id="explorer-title" className="font-display text-6xl leading-none font-black text-mist sm:text-7xl">
               Explorer la nuit
             </h2>
@@ -57,7 +49,7 @@ export default function ExplorerPage() {
                   : `${visibleSpots.length} lieux sur ${spots.length}`}
               </p>
             )}
-          </Reveal>
+          </div>
 
           {/* La barre de filtres modifie "filters" grâce à setFilters */}
           <FiltersBar filters={filters} onChange={setFilters} categories={categories} />
@@ -121,24 +113,13 @@ export default function ExplorerPage() {
 
               {/* Liste en cartes avec flex, sous la carte : les cartes passent à la ligne (flex-wrap) */}
               <ul className="flex flex-wrap gap-6">
-                {/* Quand les filtres changent, les cartes sortent, entrent et se replacent en douceur (layout) */}
-                <AnimatePresence mode="popLayout" initial={false}>
-                  {/* map() crée une carte pour chaque lieu filtré. key aide React à les reconnaître. */}
-                  {visibleSpots.map((spot) => (
-                    <motion.li
-                      key={spot.id}
-                      layout
-                      initial={{ opacity: 0, scale: 0.96 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.96 }}
-                      transition={{ duration: 0.35, ease: EASE_OUT }}
-                      // Largeur des cartes : 1 par ligne sur mobile, 2 sur tablette, 3 sur ordinateur
-                      className="flex w-full sm:w-[calc((100%-1.5rem)/2)] lg:w-[calc((100%-3rem)/3)]"
-                    >
-                      <SpotCard spot={spot} selected={spot.id === selectedId} onExplore={(s) => setSelectedId(s.id)} />
-                    </motion.li>
-                  ))}
-                </AnimatePresence>
+                {/* map() crée une carte pour chaque lieu filtré. key aide React à les reconnaître. */}
+                {visibleSpots.map((spot) => (
+                  // Largeur des cartes : 1 par ligne sur mobile, 2 sur tablette, 3 sur ordinateur
+                  <li key={spot.id} className="flex w-full sm:w-[calc((100%-1.5rem)/2)] lg:w-[calc((100%-3rem)/3)]">
+                    <SpotCard spot={spot} selected={spot.id === selectedId} onExplore={(s) => setSelectedId(s.id)} />
+                  </li>
+                ))}
               </ul>
             </>
           )}
@@ -146,16 +127,8 @@ export default function ExplorerPage() {
       </main>
       <Footer />
 
-      {/* AnimatePresence garde la fiche affichée le temps de son animation de fermeture */}
-      <AnimatePresence>
-        {selectedSpot && (
-          <SpotDetail
-            key="detail"
-            spot={selectedSpot}
-            onClose={() => setSelectedId(null)} // fermer = plus aucun lieu sélectionné
-          />
-        )}
-      </AnimatePresence>
+      {/* La fiche détaillée ne s'affiche que si un lieu est sélectionné. Fermer = plus aucun lieu sélectionné. */}
+      {selectedSpot && <SpotDetail spot={selectedSpot} onClose={() => setSelectedId(null)} />}
     </>
   );
 }

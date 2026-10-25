@@ -1,8 +1,7 @@
 // Carte d'un lieu dans la grille de la page Explorer.
 import type { Spot } from '../types/spot';
-import { formatLocation, readDescription } from '../utils/spots';
-import { CategoryBadge, DemoTag } from './Badges';
-import { Icon } from './Icon';
+import { formatLocation } from '../utils/spots';
+import { CategoryBadge } from './Badges';
 import { SpotImage } from './SpotImage';
 
 type SpotCardProps = {
@@ -12,8 +11,6 @@ type SpotCardProps = {
 };
 
 export function SpotCard({ spot, selected, onExplore }: SpotCardProps) {
-  // On sépare la description en deux : est-ce un lieu de démo ? + le texte à afficher
-  const { isDemo, text } = readDescription(spot.description);
   // L'adresse à afficher (ou la ville si l'adresse est vide)
   const location = formatLocation(spot);
 
@@ -34,20 +31,11 @@ export function SpotCard({ spot, selected, onExplore }: SpotCardProps) {
       </div>
 
       <div className="flex flex-1 flex-col gap-2 p-5">
-        <div className="flex flex-wrap items-center gap-2">
-          <CategoryBadge category={spot.category} />
-          {/* L'étiquette "Lieu fictif" n'apparaît que pour les lieux de démonstration */}
-          {isDemo && <DemoTag />}
-        </div>
+        <CategoryBadge category={spot.category} />
         <h3 className="font-display text-[1.75rem] leading-none font-bold text-mist">{spot.name}</h3>
         {/* line-clamp-2 : la description est coupée après 2 lignes */}
-        {text && <p className="line-clamp-2 text-sm leading-relaxed text-ash">{text}</p>}
-        {location && (
-          <p className="flex items-start gap-1.5 text-sm text-mist/75">
-            <Icon name="map-pin" className="mt-0.5 size-4 shrink-0" />
-            {location}
-          </p>
-        )}
+        {spot.description && <p className="line-clamp-2 text-sm leading-relaxed text-ash">{spot.description}</p>}
+        {location && <p className="text-sm text-mist/75">{location}</p>}
 
         {/* mt-auto pousse le bouton tout en bas de la carte, même si le texte est court */}
         <div className="mt-auto flex items-center justify-end gap-2 pt-3">
