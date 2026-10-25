@@ -1,6 +1,6 @@
 // Page client "/" : hero, filtres, carte, liste des lieux et fiche détaillée.
 // La carte et la liste affichent les MÊMES lieux filtrés (visibleSpots).
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router';
 import { AnimatePresence, motion } from 'framer-motion';
 import { FiltersBar } from '../components/FiltersBar';
@@ -11,10 +11,9 @@ import { SpotCard } from '../components/SpotCard';
 import { SpotDetail } from '../components/SpotDetail';
 import { SpotMap } from '../components/SpotMap';
 import { Loader, StateMessage } from '../components/StateMessage';
-import { useFavorites } from '../hooks/useFavorites';
 import { useSpots } from '../hooks/useSpots';
 import type { SpotFilters } from '../types/spot';
-import { EMPTY_FILTERS, filterSpots, getCities } from '../utils/spots';
+import { EMPTY_FILTERS, filterSpots } from '../utils/spots';
 
 export default function ExplorerPage() {
   // Les données venant de l'API : lieux, catégories, état du chargement, message d'erreur
@@ -25,14 +24,9 @@ export default function ExplorerPage() {
   const [selectedId, setSelectedId] = useState<number | null>(null);
   // Intro animée : une fois par session (calculé une seule fois au chargement de la page)
   const [showIntro, setShowIntro] = useState(shouldPlayIntro);
-  // Bonus : favoris, gardés dans le navigateur
-  const { favoriteIds, toggleFavorite } = useFavorites();
 
-  // Données filtrées : recalculées seulement quand les lieux, les filtres ou les favoris changent.
-  // useMemo garde le résultat en mémoire tant que ces trois valeurs ne changent pas.
-  const visibleSpots = useMemo(() => filterSpots(spots, filters, favoriteIds), [spots, filters, favoriteIds]);
-  // La liste des villes pour le filtre "Ville"
-  const cities = useMemo(() => getCities(spots), [spots]);
+  // Les lieux filtrés : recalculés à chaque affichage (la liste est petite, c'est instantané)
+  const visibleSpots = filterSpots(spots, filters);
   // Le lieu sélectionné : find() cherche le lieu qui a cet id (ou null s'il n'y en a pas)
   const selectedSpot = spots.find((spot) => spot.id === selectedId) ?? null;
 
@@ -66,13 +60,7 @@ export default function ExplorerPage() {
           </Reveal>
 
           {/* La barre de filtres modifie "filters" grâce à setFilters */}
-          <FiltersBar
-            filters={filters}
-            onChange={setFilters}
-            categories={categories}
-            cities={cities}
-            favoritesCount={favoriteIds.length}
-          />
+          <FiltersBar filters={filters} onChange={setFilters} categories={categories} />
 
           {/* Un seul de ces blocs s'affiche, selon l'état du chargement et des données */}
 
@@ -118,7 +106,7 @@ export default function ExplorerPage() {
                 </button>
               }
             >
-              Essaie une autre catégorie, une autre ville ou un autre nom.
+              Essaie une autre catégorie ou un autre nom.
             </StateMessage>
           )}
 
@@ -147,13 +135,7 @@ export default function ExplorerPage() {
                       // Largeur des cartes : 1 par ligne sur mobile, 2 sur tablette, 3 sur ordinateur
                       className="flex w-full sm:w-[calc((100%-1.5rem)/2)] lg:w-[calc((100%-3rem)/3)]"
                     >
-                      <SpotCard
-                        spot={spot}
-                        selected={spot.id === selectedId}
-                        onExplore={(s) => setSelectedId(s.id)}
-                        isFavorite={favoriteIds.includes(spot.id)}
-                        onToggleFavorite={toggleFavorite}
-                      />
+                      <SpotCard spot={spot} selected={spot.id === selectedId} onExplore={(s) => setSelectedId(s.id)} />
                     </motion.li>
                   ))}
                 </AnimatePresence>
@@ -171,8 +153,6 @@ export default function ExplorerPage() {
             key="detail"
             spot={selectedSpot}
             onClose={() => setSelectedId(null)} // fermer = plus aucun lieu sélectionné
-            isFavorite={favoriteIds.includes(selectedSpot.id)}
-            onToggleFavorite={toggleFavorite}
           />
         )}
       </AnimatePresence>

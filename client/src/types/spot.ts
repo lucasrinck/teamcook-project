@@ -47,6 +47,4 @@ export type SpotInput = {
 export type SpotFilters = {
   search: string; // texte tapé dans la recherche
   categoryId: number | null; // catégorie choisie, null = toutes
-  city: string; // ville choisie, "" = toutes
-  onlyFavorites: boolean; // true = seulement les favoris
 };

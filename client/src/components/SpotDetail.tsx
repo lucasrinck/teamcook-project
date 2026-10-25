@@ -7,17 +7,14 @@ import { readDescription } from '../utils/spots';
 import { CategoryBadge, DemoTag } from './Badges';
 import { Icon } from './Icon';
 import { EASE_OUT } from './Motion';
-import { FavoriteButton } from './SpotActions';
 import { SpotImage } from './SpotImage';
 
 type SpotDetailProps = {
   spot: Spot; // le lieu à afficher
   onClose: () => void; // ferme la fiche
-  isFavorite: boolean;
-  onToggleFavorite: (id: number) => void;
 };
 
-export function SpotDetail({ spot, onClose, isFavorite, onToggleFavorite }: SpotDetailProps) {
+export function SpotDetail({ spot, onClose }: SpotDetailProps) {
   // Numéro de la photo affichée dans la galerie (0 = la première)
   const [imageIndex, setImageIndex] = useState(0);
   // Référence vers le titre, pour pouvoir lui donner le focus
@@ -133,9 +130,6 @@ export function SpotDetail({ spot, onClose, isFavorite, onToggleFavorite }: Spot
         </h2>
 
         {text && <p className="leading-relaxed text-mist/80">{text}</p>}
-
-        {/* Bouton favori, version avec texte */}
-        <FavoriteButton spotName={spot.name} active={isFavorite} onToggle={() => onToggleFavorite(spot.id)} withLabel />
 
         {/* Adresse du lieu, ou message s'il n'a pas de localisation */}
         <div className="flex items-start gap-3 rounded-2xl border border-white/8 bg-forest/50 p-4">

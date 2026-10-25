@@ -6,7 +6,6 @@ import { ApiError, createSpot, deleteSpot, updateSpot } from '../../services/api
 import { useSpots } from '../../hooks/useSpots';
 import { useToast } from '../../hooks/useToast';
 import type { Spot, SpotInput } from '../../types/spot';
-import { getCities } from '../../utils/spots';
 import { Dialog } from '../Dialog';
 import { Icon } from '../Icon';
 import { Loader, StateMessage } from '../StateMessage';
@@ -114,10 +113,9 @@ export function ControlRoom({ token, onLogout }: ControlRoomProps) {
 
       {/* Les 3 chiffres clés */}
       {status === 'ready' && (
-        <dl className="grid grid-cols-3 divide-x divide-white/8 rounded-3xl border border-white/8">
+        <dl className="grid grid-cols-2 divide-x divide-white/8 rounded-3xl border border-white/8">
           <Stat label="Lieux enregistrés" value={spots.length} />
           <Stat label="Catégories" value={categories.length} />
-          <Stat label="Villes" value={getCities(spots).length} />
         </dl>
       )}
 

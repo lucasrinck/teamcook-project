@@ -3,18 +3,15 @@ import type { Spot } from '../types/spot';
 import { formatLocation, readDescription } from '../utils/spots';
 import { CategoryBadge, DemoTag } from './Badges';
 import { Icon } from './Icon';
-import { FavoriteButton } from './SpotActions';
 import { SpotImage } from './SpotImage';
 
 type SpotCardProps = {
   spot: Spot; // le lieu à afficher
   selected: boolean; // true si c'est le lieu actuellement ouvert (bordure verte)
   onExplore: (spot: Spot) => void; // appelé au clic sur "Explorer" (ouvre la fiche)
-  isFavorite: boolean; // true si le lieu est dans les favoris
-  onToggleFavorite: (id: number) => void; // appelé au clic sur le cœur
 };
 
-export function SpotCard({ spot, selected, onExplore, isFavorite, onToggleFavorite }: SpotCardProps) {
+export function SpotCard({ spot, selected, onExplore }: SpotCardProps) {
   // On sépare la description en deux : est-ce un lieu de démo ? + le texte à afficher
   const { isDemo, text } = readDescription(spot.description);
   // L'adresse à afficher (ou la ville si l'adresse est vide)
@@ -34,10 +31,6 @@ export function SpotCard({ spot, selected, onExplore, isFavorite, onToggleFavori
           alt={`Photo : ${spot.name}`}
           className="h-full w-full object-cover transition duration-700 group-hover:scale-105"
         />
-        {/* Le cœur, posé en haut à droite de la photo */}
-        <div className="absolute top-2 right-2">
-          <FavoriteButton spotName={spot.name} active={isFavorite} onToggle={() => onToggleFavorite(spot.id)} />
-        </div>
       </div>
 
       <div className="flex flex-1 flex-col gap-2 p-5">
