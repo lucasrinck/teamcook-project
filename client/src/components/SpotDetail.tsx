@@ -20,7 +20,8 @@ export function SpotDetail({ spot, onClose }: SpotDetailProps) {
         aria-labelledby="spot-detail-title"
         className="fixed inset-0 z-50 flex flex-col gap-5 overflow-y-auto bg-charcoal p-5 lg:inset-y-4 lg:right-4 lg:left-auto lg:w-[28rem] lg:rounded-[2rem] lg:border lg:border-white/10"
       >
-        <button type="button" onClick={onClose} className="btn btn-ghost self-start">
+        {/* autoFocus : à l'ouverture, le clavier se place sur ce bouton (on peut fermer avec Entrée) */}
+        <button type="button" onClick={onClose} className="btn btn-ghost self-start" autoFocus>
           ✕ Fermer
         </button>
 

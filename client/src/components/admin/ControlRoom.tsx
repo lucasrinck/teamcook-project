@@ -76,6 +76,8 @@ export function ControlRoom({ token, onLogout }: ControlRoomProps) {
       await reload();
     } catch (err) {
       handleApiError(err);
+      // Le message d'erreur s'affiche dans le formulaire, en haut : on remonte pour qu'il soit visible
+      document.getElementById('spot-form')?.scrollIntoView();
     } finally {
       setBusyId(null); // finally : exécuté dans tous les cas, réussite ou erreur
     }
