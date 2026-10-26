@@ -51,16 +51,9 @@
   .btn-ghost {
     @apply border border-white/10 text-mist hover:border-white/25 hover:bg-white/5;
   }
-  .btn-link {
-    @apply px-2 text-ash hover:text-mist;
-  }
   .btn-danger {
     @apply border border-red-400/30 text-red-300 hover:border-red-400/60 hover:bg-red-400/10;
   }
-  .btn-danger-solid {
-    @apply bg-red-400 text-charcoal hover:bg-red-300;
-  }
-
   /* Champs de formulaire */
   .field-label {
     @apply text-sm font-semibold text-mist;
@@ -70,120 +63,6 @@
   }
   .field-error {
     @apply flex items-center gap-1.5 text-sm text-red-300;
-  }
-
-  /* Puces de catégories (aria-pressed = sélectionnée) */
-  .chip {
-    @apply inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full border border-white/10 px-4 text-sm text-mist/85 transition hover:border-white/25 aria-pressed:border-acid aria-pressed:bg-acid/10 aria-pressed:text-mist;
-  }
-
-  /* Interrupteur (case à cocher stylée) */
-  .switch {
-    @apply relative h-7 w-12 shrink-0 cursor-pointer appearance-none rounded-full border border-white/15 bg-white/10 transition checked:border-acid checked:bg-acid;
-  }
-  .switch::after {
-    content: '';
-    @apply absolute top-1 left-1 size-[1.125rem] rounded-full bg-mist transition-transform;
-  }
-  .switch:checked::after {
-    @apply translate-x-5 bg-charcoal;
-  }
-
-  .gallery-btn {
-    @apply grid size-11 place-items-center rounded-full bg-charcoal/80 text-mist backdrop-blur transition hover:bg-charcoal;
-  }
-
-  /* Fenêtres <dialog> */
-  .dialog-base {
-    @apply m-0 max-h-none max-w-none border-white/10 bg-charcoal p-0 text-mist;
-  }
-  .dialog-base::backdrop {
-    background: rgba(5, 7, 6, 0.75);
-    backdrop-filter: blur(4px);
-  }
-  /* Panneau latéral à droite (plein écran sur mobile) */
-  .dialog-drawer {
-    @apply fixed inset-y-0 right-0 left-auto h-full w-full overflow-y-auto border-l sm:w-[36rem];
-  }
-  .dialog-drawer[open] {
-    animation: drawer-in 0.35s cubic-bezier(0.22, 1, 0.36, 1);
-  }
-  /* Fenêtre centrée (confirmation) */
-  .dialog-center {
-    @apply fixed inset-0 m-auto h-fit w-[calc(100%-2rem)] max-w-lg rounded-[2rem] border;
-  }
-  .dialog-center[open] {
-    animation: pop-in 0.25s cubic-bezier(0.22, 1, 0.36, 1);
-  }
-}
-
-/* ---------- Effets décoratifs (CSS) ---------- */
-
-/* Halos lumineux du hero : deux taches de couleur floues qui dérivent lentement */
-.hero-glow {
-  width: 60vw;
-  height: 60vw;
-  border-radius: 9999px;
-  filter: blur(60px);
-  animation: glow-drift 18s ease-in-out infinite alternate;
-}
-.hero-glow-violet {
-  left: -15%;
-  bottom: -25%;
-  background: radial-gradient(circle, rgba(141, 120, 255, 0.22), transparent 60%);
-}
-.hero-glow-acid {
-  right: -20%;
-  top: -10%;
-  width: 45vw;
-  height: 45vw;
-  background: radial-gradient(circle, rgba(212, 255, 112, 0.1), transparent 60%);
-  animation-duration: 24s;
-  animation-direction: alternate-reverse;
-}
-
-/* Indicateur de chargement : une lune qui tourne autour d'un point */
-.loader-orbit {
-  position: relative;
-  width: 3rem;
-  height: 3rem;
-  border-radius: 9999px;
-  border: 1px solid rgba(221, 226, 216, 0.15);
-  animation: spin 1.4s linear infinite;
-}
-.loader-orbit::after {
-  content: '';
-  position: absolute;
-  top: -5px;
-  left: 50%;
-  width: 10px;
-  height: 10px;
-  margin-left: -5px;
-  border-radius: 9999px;
-  background: var(--color-acid);
-  box-shadow: 0 0 16px var(--color-acid);
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-@keyframes drawer-in {
-  from {
-    transform: translateX(40px);
-    opacity: 0;
-  }
-}
-@keyframes pop-in {
-  from {
-    transform: translateY(8px) scale(0.98);
-    opacity: 0;
-  }
-}
-@keyframes glow-drift {
-  to {
-    transform: translate(8vw, -6vh) scale(1.15);
   }
 }
 
