@@ -1,10 +1,10 @@
 // Carte interactive (Leaflet + React Leaflet) avec le fond CARTO Dark Matter.
 // Les positions viennent de la table spot_infos (infos.latitude / infos.longitude).
-import { useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 // L : la bibliothèque Leaflet elle-même (ici, pour créer les icônes des marqueurs)
 import L from 'leaflet';
 // Les composants React qui enveloppent Leaflet : la carte, les marqueurs, les couches d'images
-import { MapContainer, Marker, TileLayer, useMap } from 'react-leaflet';
+import { MapContainer, Marker, TileLayer } from 'react-leaflet';
 // Le CSS de base de Leaflet (sans lui, la carte s'affiche en morceaux)
 import 'leaflet/dist/leaflet.css';
 import type { Spot } from '../types/spot';
@@ -82,24 +82,6 @@ function SpotMarker({ point, selected, onSelect }: SpotMarkerProps) {
   );
 }
 
-// Centre la carte sur le lieu sélectionné.
-// Ce composant n'affiche rien (return null) : il agit seulement sur la carte.
-function FlyToSelected({ point }: { point: MapPoint | null }) {
-  // useMap() donne accès à la carte Leaflet dans laquelle ce composant est placé
-  const map = useMap();
-  const selectedId = point?.spot.id;
-
-  useEffect(() => {
-    if (!point) return; // aucun lieu sélectionné : on ne bouge pas
-    // On zoome au moins au niveau 15 (on garde le zoom actuel s'il est déjà plus proche)
-    const zoom = Math.max(map.getZoom(), 15);
-    // flyTo : déplacement animé jusqu'au lieu, comme un vol
-    map.flyTo(point.position, zoom, { duration: 0.8 });
-  }, [selectedId]); // on se déplace seulement quand un autre lieu est sélectionné
-
-  return null;
-}
-
 type SpotMapProps = {
   spots: Spot[]; // les lieux filtrés (les mêmes que la liste)
   selectedId: number | null; // le lieu ouvert (null = aucun)
@@ -115,9 +97,6 @@ export function SpotMap({ spots, selectedId, onSelect }: SpotMapProps) {
     }
     return result;
   }, [spots]);
-
-  // Le point du lieu sélectionné (ou null)
-  const selectedPoint = points.find((point) => point.spot.id === selectedId) ?? null;
 
   return (
     <div className="map-frame relative isolate h-full overflow-hidden rounded-[2rem] border border-white/10">
@@ -147,9 +126,6 @@ export function SpotMap({ spots, selectedId, onSelect }: SpotMapProps) {
         {points.map((point) => (
           <SpotMarker key={point.spot.id} point={point} selected={point.spot.id === selectedId} onSelect={onSelect} />
         ))}
-
-        {/* N'affiche rien : centre la carte quand un lieu est sélectionné */}
-        <FlyToSelected point={selectedPoint} />
       </MapContainer>
 
       {/* Si la clé CARTO manque dans client/.env, on prévient au lieu d'afficher une carte vide */}
