@@ -1,7 +1,7 @@
 // Carte interactive (Leaflet + React Leaflet) avec le fond CARTO Dark Matter.
 // Les positions viennent de la table spot_infos (infos.latitude / infos.longitude).
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-// L : la bibliothèque Leaflet elle-même (création des icônes, des limites, des boutons de zoom)
+import { useEffect, useMemo } from 'react';
+// L : la bibliothèque Leaflet elle-même (ici, pour créer les icônes des marqueurs)
 import L from 'leaflet';
 // Les composants React qui enveloppent Leaflet : la carte, les marqueurs, les couches d'images
 import { MapContainer, Marker, TileLayer, useMap } from 'react-leaflet';
@@ -10,7 +10,8 @@ import 'leaflet/dist/leaflet.css';
 import type { Spot } from '../types/spot';
 import { iconSvg } from './Icon';
 
-// Centre de la carte au démarrage : Paris [latitude, longitude]
+// Centre de la carte au démarrage : Paris [latitude, longitude].
+// Au zoom 13, tous les lieux de démonstration sont visibles.
 const PARIS: [number, number] = [48.8606, 2.3522];
 
 // CARTO fournit des tuiles jusqu'au zoom 18 seulement (au-delà : erreur 403 et carte noire).
@@ -39,11 +40,6 @@ type MapPoint = {
   spot: Spot;
   position: [number, number];
 };
-
-// true si l'utilisateur a demandé à réduire les animations dans les réglages de son système
-function prefersReducedMotion() {
-  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-}
 
 // Marqueur personnalisé (divIcon = du HTML stylé en CSS, voir .spot-marker dans index.css).
 // Il contient l'icône de la catégorie : l'information ne repose pas que sur la couleur.
@@ -86,32 +82,10 @@ function SpotMarker({ point, selected, onSelect }: SpotMarkerProps) {
   );
 }
 
-// Recadre la carte sur les lieux affichés quand les filtres changent.
+// Centre la carte sur le lieu sélectionné.
 // Ce composant n'affiche rien (return null) : il agit seulement sur la carte.
-function FitToPoints({ points }: { points: MapPoint[] }) {
-  // useMap() donne accès à la carte Leaflet dans laquelle ce composant est placé
-  const map = useMap();
-  // Les id des lieux affichés, réunis en un texte (ex. "1,4,7") : facile à comparer d'un affichage à l'autre
-  const ids = points.map((point) => point.spot.id).join(',');
-
-  function fit() {
-    if (points.length === 0) return;
-    // latLngBounds calcule le rectangle qui contient tous les lieux
-    const bounds = L.latLngBounds(points.map((point) => point.position));
-    // fitBounds zoome et déplace la carte pour montrer ce rectangle en entier
-    map.fitBounds(bounds, { padding: [48, 48], maxZoom: 15, animate: !prefersReducedMotion() });
-  }
-
-  // On recadre seulement quand la liste des lieux affichés change
-  useEffect(() => {
-    fit();
-  }, [ids]);
-
-  return null;
-}
-
-// Centre la carte sur le lieu sélectionné
 function FlyToSelected({ point }: { point: MapPoint | null }) {
+  // useMap() donne accès à la carte Leaflet dans laquelle ce composant est placé
   const map = useMap();
   const selectedId = point?.spot.id;
 
@@ -119,11 +93,8 @@ function FlyToSelected({ point }: { point: MapPoint | null }) {
     if (!point) return; // aucun lieu sélectionné : on ne bouge pas
     // On zoome au moins au niveau 15 (on garde le zoom actuel s'il est déjà plus proche)
     const zoom = Math.max(map.getZoom(), 15);
-    if (prefersReducedMotion()) {
-      map.setView(point.position, zoom); // déplacement instantané
-    } else {
-      map.flyTo(point.position, zoom, { duration: 0.8 }); // déplacement animé, comme un vol
-    }
+    // flyTo : déplacement animé jusqu'au lieu, comme un vol
+    map.flyTo(point.position, zoom, { duration: 0.8 });
   }, [selectedId]); // on se déplace seulement quand un autre lieu est sélectionné
 
   return null;
@@ -148,31 +119,11 @@ export function SpotMap({ spots, selectedId, onSelect }: SpotMapProps) {
   // Le point du lieu sélectionné (ou null)
   const selectedPoint = points.find((point) => point.spot.id === selectedId) ?? null;
 
-  // Message "comment zoomer", affiché 1,5 seconde quand on fait défiler au-dessus de la carte
-  const [zoomHintVisible, setZoomHintVisible] = useState(false);
-  // useRef garde le numéro du minuteur entre deux affichages, sans relancer d'affichage
-  const hintTimer = useRef<number | undefined>(undefined);
-
-  // useCallback : la même fonction est gardée d'un affichage à l'autre
-  const showZoomHint = useCallback(() => {
-    setZoomHintVisible(true);
-    // Si le message était déjà affiché, on annule l'ancien minuteur et on repart pour 1,5 seconde
-    window.clearTimeout(hintTimer.current);
-    hintTimer.current = window.setTimeout(() => setZoomHintVisible(false), 1500);
-  }, []);
-
   return (
     <div className="map-frame relative isolate h-full overflow-hidden rounded-[2rem] border border-white/10">
-      {/* MapContainer crée la carte Leaflet. Tout ce qui est à l'intérieur est ajouté à la carte. */}
-      <MapContainer
-        center={PARIS}
-        zoom={13}
-        maxZoom={MAX_ZOOM}
-        zoomSnap={0} // zoom progressif (utile pour le pincement du trackpad)
-        className="h-full w-full"
-        zoomControl={false} // on ajoute nos propres boutons de zoom (voir ZoomButtons)
-        scrollWheelZoom={false} // molette simple = défilement de la page (le pincement est géré par PinchZoom)
-      >
+      {/* MapContainer crée la carte Leaflet. Tout ce qui est à l'intérieur est ajouté à la carte.
+          Le zoom se fait avec la molette, le pincement du trackpad ou les boutons + / -. */}
+      <MapContainer center={PARIS} zoom={13} maxZoom={MAX_ZOOM} className="h-full w-full">
         {/* Couche 1 : le fond de carte sans les noms (teinté en violet par le CSS) */}
         <TileLayer
           url={BASE_TILES}
@@ -197,24 +148,9 @@ export function SpotMap({ spots, selectedId, onSelect }: SpotMapProps) {
           <SpotMarker key={point.spot.id} point={point} selected={point.spot.id === selectedId} onSelect={onSelect} />
         ))}
 
-        {/* Ces composants n'affichent rien : ils pilotent la carte (cadrage, vol, zoom) */}
-        <FitToPoints points={points} />
+        {/* N'affiche rien : centre la carte quand un lieu est sélectionné */}
         <FlyToSelected point={selectedPoint} />
-        <ZoomButtons />
-        <PinchZoom onPlainScroll={showZoomHint} />
       </MapContainer>
-
-      {/* Petit message quand on fait défiler la page au-dessus de la carte */}
-      <div
-        aria-hidden="true"
-        className={`pointer-events-none absolute inset-x-0 top-6 z-[500] flex justify-center transition-opacity duration-300 ${
-          zoomHintVisible ? 'opacity-100' : 'opacity-0'
-        }`}
-      >
-        <span className="rounded-full bg-charcoal/90 px-4 py-2 text-sm text-mist">
-          Pince le trackpad ou utilise Ctrl + molette pour zoomer
-        </span>
-      </div>
 
       {/* Si la clé CARTO manque dans client/.env, on prévient au lieu d'afficher une carte vide */}
       {!CARTO_KEY && (
@@ -231,53 +167,4 @@ export function SpotMap({ spots, selectedId, onSelect }: SpotMapProps) {
       )}
     </div>
   );
-}
-
-// Zoom au pincement du trackpad (ou Ctrl + molette).
-// Le navigateur envoie un pincement comme une molette avec ctrlKey = true :
-// on zoome la carte dans ce cas, sinon on laisse la page défiler normalement.
-function PinchZoom({ onPlainScroll }: { onPlainScroll: () => void }) {
-  const map = useMap();
-
-  useEffect(() => {
-    // L'élément HTML qui contient la carte
-    const container = map.getContainer();
-
-    // Appelée à chaque mouvement de molette (ou de trackpad) au-dessus de la carte
-    function handleWheel(event: WheelEvent) {
-      if (!event.ctrlKey) {
-        onPlainScroll(); // défilement simple : la page défile, on rappelle comment zoomer
-        return;
-      }
-      event.preventDefault(); // empêche le navigateur de zoomer toute la page
-      // deltaY = l'ampleur du geste : négatif quand on écarte les doigts (zoom avant)
-      const zoom = map.getZoom() - event.deltaY * 0.01;
-      // On zoome autour du point de la carte qui est sous le pointeur
-      map.setZoomAround(map.mouseEventToContainerPoint(event), zoom, { animate: false });
-    }
-
-    // passive: false est nécessaire pour pouvoir appeler preventDefault()
-    container.addEventListener('wheel', handleWheel, { passive: false });
-    // Nettoyage : on retire l'écoute quand la carte disparaît
-    return () => container.removeEventListener('wheel', handleWheel);
-  }, [map, onPlainScroll]);
-
-  return null;
-}
-
-// Boutons de zoom en bas à droite (plus faciles à atteindre au pouce sur mobile)
-function ZoomButtons() {
-  const map = useMap();
-
-  useEffect(() => {
-    // On crée les boutons + / - de Leaflet et on les ajoute à la carte
-    const control = L.control.zoom({ position: 'bottomright', zoomInTitle: 'Zoomer', zoomOutTitle: 'Dézoomer' });
-    control.addTo(map);
-    // Nettoyage : on les retire si la carte disparaît
-    return () => {
-      control.remove();
-    };
-  }, [map]);
-
-  return null;
 }

@@ -19,23 +19,9 @@ const ICONS: Record<string, string> = {
   utensils: '<path d="M6 3v7a2 2 0 0 0 2 2v9M10 3v7a2 2 0 0 1-2 2M8 3v6"/><path d="M17 21V3c-2 1.5-3 4-3 7v3h3"/>',
   'map-pin': '<path d="M12 21s-7-6.3-7-11a7 7 0 0 1 14 0c0 4.7-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/>',
 
-  // --- Interface ---
-  search: '<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>',
-  x: '<path d="M6 6l12 12M18 6 6 18"/>',
-  check: '<path d="m5 12 5 5 9-10"/>',
-  alert: '<circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.5M12 16.5h.01"/>',
-  sliders:
-    '<path d="M4 6h9M17 6h3M4 12h3M11 12h9M4 18h11M19 18h1"/><circle cx="15" cy="6" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="18" r="2"/>',
-  plus: '<path d="M12 5v14M5 12h14"/>',
-  trash: '<path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/>',
-  pencil: '<path d="M4 20h4L19 9l-4-4L4 16zM14 6l4 4"/>',
+  // --- Interface (image de remplacement, cadenas de la page admin) ---
   lock: '<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
-  logout: '<path d="M14 4h5v16h-5M10 8l-4 4 4 4M6 12h10"/>',
-  'chevron-left': '<path d="m15 6-6 6 6 6"/>',
-  'chevron-right': '<path d="m9 6 6 6-6 6"/>',
-  refresh: '<path d="M20 11a8 8 0 1 0-2.3 5.7M20 5v6h-6"/>',
   image: '<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m21 16-5-5-9 9"/>',
-  heart: '<path d="M12 20s-7-4.4-9.2-9A5 5 0 0 1 12 6a5 5 0 0 1 9.2 5c-2.2 4.6-9.2 9-9.2 9z"/>',
 };
 
 // Attributs communs : trait de la couleur du texte (currentColor), extrémités arrondies.
@@ -43,7 +29,7 @@ const ICONS: Record<string, string> = {
 const SVG_ATTRIBUTES =
   'viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"';
 
-// Renvoie le dessin (texte SVG) d'une icône à partir de son nom, ex. iconContent('heart')
+// Renvoie le dessin (texte SVG) d'une icône à partir de son nom, ex. iconContent('lock')
 function iconContent(name: string) {
   return ICONS[name] ?? ICONS['map-pin']; // icône inconnue : un repère de carte
 }
@@ -55,11 +41,11 @@ export function iconSvg(name: string) {
 }
 
 type IconProps = {
-  name: string; // nom de l'icône, ex. "heart" ou "martini"
+  name: string; // nom de l'icône, ex. "lock" ou "martini"
   className?: string; // taille et couleur, ex. "size-4 text-acid"
 };
 
-// Composant React qui affiche une icône : <Icon name="heart" />
+// Composant React qui affiche une icône : <Icon name="lock" />
 // Par défaut, l'icône fait la taille "size-5" (20 px).
 export function Icon({ name, className = 'size-5' }: IconProps) {
   return (
