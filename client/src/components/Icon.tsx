@@ -38,24 +38,29 @@ const ICONS: Record<string, string> = {
   heart: '<path d="M12 20s-7-4.4-9.2-9A5 5 0 0 1 12 6a5 5 0 0 1 9.2 5c-2.2 4.6-9.2 9-9.2 9z"/>',
 };
 
-// Attributs communs : trait de la couleur du texte (currentColor), extrémités arrondies
+// Attributs communs : trait de la couleur du texte (currentColor), extrémités arrondies.
+// viewBox="0 0 24 24" : chaque icône est dessinée dans un carré de 24 x 24.
 const SVG_ATTRIBUTES =
   'viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"';
 
+// Renvoie le dessin (texte SVG) d'une icône à partir de son nom, ex. iconContent('heart')
 function iconContent(name: string) {
   return ICONS[name] ?? ICONS['map-pin']; // icône inconnue : un repère de carte
 }
 
-// Icône complète sous forme de texte SVG (utilisée dans le HTML des marqueurs de la carte)
+// Icône complète sous forme de texte SVG (utilisée dans le HTML des marqueurs de la carte).
+// La carte Leaflet attend du HTML en texte, pas un composant React : d'où cette version "texte".
 export function iconSvg(name: string) {
   return `<svg ${SVG_ATTRIBUTES}>${iconContent(name)}</svg>`;
 }
 
 type IconProps = {
-  name: string;
-  className?: string;
+  name: string; // nom de l'icône, ex. "heart" ou "martini"
+  className?: string; // taille et couleur, ex. "size-4 text-acid"
 };
 
+// Composant React qui affiche une icône : <Icon name="heart" />
+// Par défaut, l'icône fait la taille "size-5" (20 px).
 export function Icon({ name, className = 'size-5' }: IconProps) {
   return (
     <svg

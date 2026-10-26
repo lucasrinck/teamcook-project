@@ -1,25 +1,12 @@
-// Petits badges réutilisables : catégorie et lieu fictif.
-// Chaque information est donnée par du TEXTE et une icône, jamais par la couleur seule.
+// Badge de catégorie : le nom de la catégorie, écrit dans sa couleur.
+// L'information est donnée par le TEXTE : la couleur n'est qu'un bonus visuel.
 import type { Category } from '../types/spot';
-import { Icon } from './Icon';
 
 export function CategoryBadge({ category }: { category: Category }) {
   return (
-    <span
-      className="inline-flex items-center gap-1.5 text-sm font-medium"
-      style={{ color: category.color ?? undefined }}
-    >
-      <Icon name={category.icon ?? 'map-pin'} className="size-4" />
+    // La couleur vient de la base (categories.color). "?? undefined" : pas de couleur si elle est vide.
+    <span className="text-sm font-medium" style={{ color: category.color ?? undefined }}>
       {category.name}
-    </span>
-  );
-}
-
-// Étiquette pour les données de démonstration
-export function DemoTag() {
-  return (
-    <span className="inline-flex items-center rounded-full border border-volt/40 px-2.5 py-0.5 text-xs text-volt">
-      Lieu fictif
     </span>
   );
 }
