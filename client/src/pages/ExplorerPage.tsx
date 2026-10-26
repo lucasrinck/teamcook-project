@@ -42,11 +42,10 @@ export default function ExplorerPage() {
             <h2 id="explorer-title" className="font-display text-6xl leading-none font-black text-mist sm:text-7xl">
               Explorer la nuit
             </h2>
+            {/* Si les données sont prêtes : nombre de lieux filtrés sur le nombre total */}
             {status === 'ready' && (
               <p className="text-ash" aria-live="polite">
-                {visibleSpots.length === spots.length
-                  ? `${spots.length} lieux à découvrir`
-                  : `${visibleSpots.length} lieux sur ${spots.length}`}
+                {visibleSpots.length} lieux sur {spots.length}
               </p>
             )}
           </div>
