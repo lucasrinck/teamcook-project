@@ -1,27 +1,11 @@
 // Éléments communs aux pages : logo, navigation et pied de page.
-import { useId } from 'react';
 // Link : un lien vers une autre page du site sans recharger la page.
 // NavLink : pareil, mais il sait si sa page est la page actuelle (pour la mettre en valeur).
 import { Link, NavLink } from 'react-router';
 
-// Le logo : une lune en croissant (dessinée en SVG) + le mot AFTERDARK
+// Le logo : simplement le mot AFTERDARK, écrit avec la police des titres
 export function Logo() {
-  const maskId = useId(); // identifiant unique : le logo apparaît plusieurs fois sur la page
-  return (
-    <span className="flex items-center gap-2.5">
-      {/* Lune éclipsée : le symbole d'AFTERDARK */}
-      <svg viewBox="0 0 32 32" className="size-7 shrink-0" aria-hidden="true">
-        {/* Le masque : le blanc garde le dessin, le noir le cache. Le cercle noir "mange" la lune. */}
-        <mask id={maskId}>
-          <rect width="32" height="32" fill="white" />
-          <circle cx="21" cy="12" r="9" fill="black" />
-        </mask>
-        {/* La lune verte, avec le masque appliqué : il ne reste qu'un croissant */}
-        <circle cx="16" cy="16" r="11" fill="#D4FF70" mask={`url(#${maskId})`} />
-      </svg>
-      <span className="font-display text-xl font-extrabold tracking-[0.08em] text-mist sm:text-2xl">AFTERDARK</span>
-    </span>
-  );
+  return <span className="font-display text-xl font-extrabold tracking-[0.08em] text-mist sm:text-2xl">AFTERDARK</span>;
 }
 
 // Calcule les classes CSS d'un lien de navigation.

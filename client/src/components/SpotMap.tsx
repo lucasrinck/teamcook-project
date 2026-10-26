@@ -45,12 +45,6 @@ function prefersReducedMotion() {
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
-// La couleur vient de la base : on n'accepte qu'un format #RRGGBB avant de l'insérer dans le HTML.
-// Sinon (couleur absente ou bizarre), on prend le vert acide par défaut.
-function safeColor(color: string | null) {
-  return color && /^#[0-9a-fA-F]{6}$/.test(color) ? color : '#D4FF70';
-}
-
 // Marqueur personnalisé (divIcon = du HTML stylé en CSS, voir .spot-marker dans index.css).
 // Il contient l'icône de la catégorie : l'information ne repose pas que sur la couleur.
 function createMarkerIcon(spot: Spot, selected: boolean) {
@@ -60,8 +54,9 @@ function createMarkerIcon(spot: Spot, selected: boolean) {
 
   return L.divIcon({
     className: 'spot-marker-wrapper',
-    // Le HTML du marqueur : un rond de la couleur de la catégorie (--marker-color) avec son icône
-    html: `<span class="${classes.join(' ')}" style="--marker-color: ${safeColor(spot.category.color)}">${iconSvg(spot.category.icon ?? 'map-pin')}</span>`,
+    // Le HTML du marqueur : un rond de la couleur de la catégorie (--marker-color) avec son icône.
+    // Si la catégorie n'a pas de couleur (null), on prend le vert acide par défaut.
+    html: `<span class="${classes.join(' ')}" style="--marker-color: ${spot.category.color ?? '#D4FF70'}">${iconSvg(spot.category.icon ?? 'map-pin')}</span>`,
     iconSize: [40, 40], // taille du marqueur en pixels
     iconAnchor: [20, 20], // le point du marqueur posé sur la position : son centre
   });
