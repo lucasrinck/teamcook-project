@@ -4,7 +4,7 @@
 import { Link, NavLink } from 'react-router';
 
 // Le logo : simplement le mot AFTERDARK, écrit avec la police des titres
-export function Logo() {
+function Logo() {
   return <span className="font-display text-xl font-extrabold tracking-[0.08em] text-mist sm:text-2xl">AFTERDARK</span>;
 }
 

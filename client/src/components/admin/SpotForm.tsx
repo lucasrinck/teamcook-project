@@ -19,7 +19,7 @@ type FormValues = {
 
 // Préremplissage : vide pour un ajout, valeurs du lieu pour une modification.
 // "spot?.name" lit name seulement si spot existe ; "?? ''" met un texte vide sinon.
-export function toFormValues(spot: Spot | null): FormValues {
+function toFormValues(spot: Spot | null): FormValues {
   return {
     name: spot?.name ?? '',
     category_id: spot ? String(spot.category.id) : '', // String() transforme le nombre 3 en texte "3"
@@ -39,7 +39,7 @@ function toNumber(value: string) {
 }
 
 // Conversion des valeurs du formulaire vers le format attendu par l'API
-export function toSpotInput(values: FormValues): SpotInput {
+function toSpotInput(values: FormValues): SpotInput {
   return {
     name: values.name,
     category_id: toNumber(values.category_id),
